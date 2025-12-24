@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.LiabilityTransactionMapper">
+
+    <select id="findByLiabilityAndDateRange" resultType="com.gnu.cash.pojo.LiabilityTransaction">
+        SELECT * FROM liability_transactions
+        WHERE user_id = #{userId}
+        <if test="liabilityId != null">
+            AND liability_id = #{liabilityId}
+        </if>
+        AND transaction_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY transaction_date DESC
+    </select>
+
+    <select id="calculateLiabilityBalance" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(credit_amount - debit_amount), 0)
+        FROM liability_transactions
+        WHERE user_id = #{userId}
+          AND liability_id = #{liabilityId}
+    </select>
+
+    <select id="getLiabilitySummary" resultType="java.util.Map">
+        SELECT
+            liability_id as liabilityId,
+            SUM(credit_amount) as totalCredit,
+            SUM(debit_amount) as totalDebit
+        FROM liability_transactions
+        WHERE user_id = #{userId}
+        GROUP BY liability_id
+    </select>
+
+</mapper>

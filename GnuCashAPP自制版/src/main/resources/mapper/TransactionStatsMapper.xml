@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.TransactionStatsMapper">
+
+    <!-- 用户交易分类统计 -->
+    <select id="getUserTransactionStats" resultType="java.util.HashMap">
+        SELECT
+        stats.type,
+        stats.category,
+        stats.subCategory,
+        COUNT(stats.transactionId) as transactionCount,
+        SUM(stats.amount) as amount
+        FROM (
+        <!-- 资产交易 -->
+        SELECT
+        'ASSET' as type,
+        a.level1 as category,
+        a.level2 as subCategory,
+        at.id as transactionId,
+        (at.debit_amount - at.credit_amount) as amount
+        FROM assets a
+        JOIN asset_transactions at ON a.id = at.asset_id
+        WHERE at.user_id = #{userId}
+
+        UNION ALL
+
+        <!-- 负债交易 -->
+        SELECT
+        'LIABILITY' as type,
+        l.level1 as category,
+        l.level2 as subCategory,
+        lt.id as transactionId,
+        (lt.credit_amount - lt.debit_amount) as amount
+        FROM liabilities l
+        JOIN liability_transactions lt ON l.id = lt.liability_id
+        WHERE lt.user_id = #{userId}
+
+        UNION ALL
+
+        <!-- 权益交易 -->
+        SELECT
+        'EQUITY' as type,
+        e.level1 as category,
+        e.level2 as subCategory,
+        et.id as transactionId,
+        (et.credit_amount - et.debit_amount) as amount
+        FROM equity e
+        JOIN equity_transactions et ON e.id = et.equity_id
+        WHERE et.user_id = #{userId}
+
+        UNION ALL
+
+        <!-- 收入交易 -->
+        SELECT
+        'INCOME' as type,
+        i.level1 as category,
+        i.level2 as subCategory,
+        it.id as transactionId,
+        (it.credit_amount - it.debit_amount) as amount
+        FROM income i
+        JOIN income_transactions it ON i.id = it.income_id
+        WHERE it.user_id = #{userId}
+
+        UNION ALL
+
+        <!-- 支出交易 -->
+        SELECT
+        'EXPENSE' as type,
+        ex.level1 as category,
+        ex.level2 as subCategory,
+        et.id as transactionId,
+        (et.debit_amount - et.credit_amount) as amount
+        FROM expenses ex
+        JOIN expense_transactions et ON ex.id = et.expense_id
+        WHERE et.user_id = #{userId}
+        ) stats
+        GROUP BY stats.type, stats.category, stats.subCategory
+        ORDER BY stats.type, amount DESC
+    </select>
+
+    <!-- 用户交易时间分布统计 -->
+    <select id="getUserTransactionTimeDistribution" resultType="java.util.HashMap">
+        SELECT
+        DATE_FORMAT(transaction_date,
+        <choose>
+            <when test="period == 'year'">'%Y'</when>
+            <when test="period == 'month'">'%Y-%m'</when>
+            <otherwise>'%Y-%m-%d'</otherwise>
+        </choose>
+        ) as period,
+        SUM(CASE WHEN type = 'INCOME' THEN amount ELSE 0 END) as income,
+        SUM(CASE WHEN type = 'EXPENSE' THEN amount ELSE 0 END) as expense,
+        SUM(CASE WHEN type = 'INCOME' THEN amount ELSE -amount END) as netAmount
+        FROM (
+        SELECT
+        'EXPENSE' as type,
+        transaction_date,
+        (debit_amount - credit_amount) as amount
+        FROM expense_transactions
+        WHERE user_id = #{userId}
+
+        UNION ALL
+
+        SELECT
+        'INCOME' as type,
+        transaction_date,
+        (credit_amount - debit_amount) as amount
+        FROM income_transactions
+        WHERE user_id = #{userId}
+        ) t
+        GROUP BY period
+        ORDER BY period
+    </select>
+</mapper>

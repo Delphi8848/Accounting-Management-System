@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易分类统计</title>
+    <script src="echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        /* 概览统计卡片 */
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .overview-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .overview-card.income { background: linear-gradient(135deg, #4CAF50, #45a049); }
+        .overview-card.expense { background: linear-gradient(135deg, #f44336, #da190b); }
+        .overview-card.net { background: linear-gradient(135deg, #2196F3, #1976D2); }
+        
+        .overview-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .overview-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        /* 图表容器 */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            height: 400px;
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        /* 分类统计表格 */
+        .category-stats {
+            margin-top: 40px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            color: white;
+            font-size: 1.2em;
+        }
+        
+        .category-icon.income { background: #4CAF50; }
+        .category-icon.expense { background: #f44336; }
+        .category-icon.asset { background: #2196F3; }
+        .category-icon.liability { background: #FF9800; }
+        .category-icon.equity { background: #9C27B0; }
+        
+        .category-header h3 {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stats-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .stats-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stats-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .amount {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .amount.positive { color: #4CAF50; }
+        .amount.negative { color: #f44336; }
+        
+        .transaction-count {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        /* 文字统计描述 */
+        .text-stats {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 40px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .text-stats h3 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            font-weight: 300;
+        }
+        
+        .stats-description {
+            line-height: 1.8;
+            font-size: 1.1em;
+            text-align: justify;
+        }
+        
+        .stats-highlight {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2em;
+            color: #666;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="window.history.back()">← 返回</button>
+            <h1>交易分类统计</h1>
+            <p>详细分析各类交易数据的分布和趋势</p>
+        </div>
+        
+        <div class="content">
+            <!-- 概览统计 -->
+            <div class="overview-cards">
+                <div class="overview-card income">
+                    <h3>总收入</h3>
+                    <div class="value" id="totalIncome">¥0.00</div>
+                    <p>所有收入类交易总额</p>
+                </div>
+                <div class="overview-card expense">
+                    <h3>总支出</h3>
+                    <div class="value" id="totalExpense">¥0.00</div>
+                    <p>所有支出类交易总额</p>
+                </div>
+                <div class="overview-card net">
+                    <h3>净额</h3>
+                    <div class="value" id="netAmount">¥0.00</div>
+                    <p>收入减去支出的净额</p>
+                </div>
+            </div>
+            
+            <!-- 图表区域 -->
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="chart-title">收入支出对比图</div>
+                    <div id="incomeExpenseChart" style="width: 100%; height: 350px;"></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">各类交易金额分布</div>
+                    <div id="categoryPieChart" style="width: 100%; height: 350px;"></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">交易笔数统计</div>
+                    <div id="transactionCountChart" style="width: 100%; height: 350px;"></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">子分类金额排行</div>
+                    <div id="subCategoryBarChart" style="width: 100%; height: 350px;"></div>
+                </div>
+            </div>
+            
+            <!-- 分类统计表格 -->
+            <div class="category-stats" id="categoryStats">
+                <div class="loading">加载统计数据中...</div>
+            </div>
+            
+            <!-- 文字统计描述 -->
+            <div class="text-stats" id="textStats">
+                <div class="loading">生成统计描述中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let statsData = null;
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                showError('请先登录');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            
+            loadStatsData();
+        });
+        
+        // 加载统计数据
+        async function loadStatsData() {
+            try {
+                const response = await fetch(`http://123.207.197.116:8081/api/transaction-stats?userId=${currentUser.id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    statsData = result.data;
+                    updateOverviewCards();
+                    initCharts();
+                    renderCategoryStats();
+                    generateTextStats();
+                } else {
+                    showError('加载统计数据失败: ' + result.message);
+                }
+            } catch (error) {
+                showError('网络错误: ' + error.message);
+            }
+        }
+        
+        // 更新概览卡片
+        function updateOverviewCards() {
+            const summary = statsData.summary;
+            document.getElementById('totalIncome').textContent = '¥' + formatAmount(summary.totalIncome);
+            document.getElementById('totalExpense').textContent = '¥' + formatAmount(summary.totalExpense);
+            document.getElementById('netAmount').textContent = '¥' + formatAmount(summary.netAmount);
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            initIncomeExpenseChart();
+            initCategoryPieChart();
+            initTransactionCountChart();
+            initSubCategoryBarChart();
+        }
+        
+        // 收入支出对比图
+        function initIncomeExpenseChart() {
+            const chart = echarts.init(document.getElementById('incomeExpenseChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: ¥{c}'
+                },
+                legend: {
+                    data: ['收入', '支出']
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['金额统计']
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '¥{value}'
+                    }
+                },
+                series: [
+                    {
+                        name: '收入',
+                        type: 'bar',
+                        data: [statsData.summary.totalIncome],
+                        itemStyle: { color: '#4CAF50' }
+                    },
+                    {
+                        name: '支出',
+                        type: 'bar',
+                        data: [statsData.summary.totalExpense],
+                        itemStyle: { color: '#f44336' }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 各类交易金额分布饼图
+        function initCategoryPieChart() {
+            const chart = echarts.init(document.getElementById('categoryPieChart'));
+            const categoryStats = statsData.categoryStats;
+            
+            const data = [
+                { value: getCategoryTotal(categoryStats.income), name: '收入' },
+                { value: getCategoryTotal(categoryStats.expense), name: '支出' },
+                { value: getCategoryTotal(categoryStats.asset), name: '资产' },
+                { value: getCategoryTotal(categoryStats.liability), name: '负债' },
+                { value: getCategoryTotal(categoryStats.equity), name: '权益' }
+            ].filter(item => item.value > 0);
+            
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: ¥{c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left'
+                },
+                series: [
+                    {
+                        name: '金额分布',
+                        type: 'pie',
+                        radius: '70%',
+                        data: data,
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 交易笔数统计图
+        function initTransactionCountChart() {
+            const chart = echarts.init(document.getElementById('transactionCountChart'));
+            const categoryStats = statsData.categoryStats;
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c} 笔交易'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['收入', '支出', '资产', '负债', '权益']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '交易笔数',
+                        type: 'bar',
+                        data: [
+                            getCategoryTransactionCount(categoryStats.income),
+                            getCategoryTransactionCount(categoryStats.expense),
+                            getCategoryTransactionCount(categoryStats.asset),
+                            getCategoryTransactionCount(categoryStats.liability),
+                            getCategoryTransactionCount(categoryStats.equity)
+                        ],
+                        itemStyle: {
+                            color: function(params) {
+                                const colors = ['#4CAF50', '#f44336', '#2196F3', '#FF9800', '#9C27B0'];
+                                return colors[params.dataIndex];
+                            }
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 子分类金额排行图
+        function initSubCategoryBarChart() {
+            const chart = echarts.init(document.getElementById('subCategoryBarChart'));
+            const categoryStats = statsData.categoryStats;
+            
+            // 获取所有子分类数据并排序
+            const allSubCategories = [
+                ...categoryStats.income.map(item => ({ ...item, category: '收入' })),
+                ...categoryStats.expense.map(item => ({ ...item, category: '支出' })),
+                ...categoryStats.asset.map(item => ({ ...item, category: '资产' })),
+                ...categoryStats.liability.map(item => ({ ...item, category: '负债' })),
+                ...categoryStats.equity.map(item => ({ ...item, category: '权益' }))
+            ].sort((a, b) => b.amount - a.amount).slice(0, 10); // 取前10名
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        const data = params[0];
+                        return `${data.name}<br/>金额: ¥${formatAmount(data.value)}<br/>分类: ${data.data.category}`;
+                    }
+                },
+                xAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '¥{value}'
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: allSubCategories.map(item => item.subCategory)
+                },
+                series: [
+                    {
+                        name: '金额',
+                        type: 'bar',
+                        data: allSubCategories.map(item => ({
+                            value: item.amount,
+                            category: item.category
+                        })),
+                        itemStyle: {
+                            color: function(params) {
+                                const category = params.data.category;
+                                const colorMap = {
+                                    '收入': '#4CAF50',
+                                    '支出': '#f44336',
+                                    '资产': '#2196F3',
+                                    '负债': '#FF9800',
+                                    '权益': '#9C27B0'
+                                };
+                                return colorMap[category] || '#666';
+                            }
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 渲染分类统计表格
+        function renderCategoryStats() {
+            const container = document.getElementById('categoryStats');
+            const categoryStats = statsData.categoryStats;
+            
+            let html = '';
+            
+            // 按分类渲染表格
+            const categories = [
+                { key: 'income', name: '收入', icon: 'income' },
+                { key: 'expense', name: '支出', icon: 'expense' },
+                { key: 'asset', name: '资产', icon: 'asset' },
+                { key: 'liability', name: '负债', icon: 'liability' },
+                { key: 'equity', name: '所有者权益', icon: 'equity' }
+            ];
+            
+            categories.forEach(cat => {
+                const items = categoryStats[cat.key];
+                if (items && items.length > 0) {
+                    html += `
+                        <div class="category-section">
+                            <div class="category-header">
+                                <div class="category-icon ${cat.icon}">${cat.name.charAt(0)}</div>
+                                <h3>${cat.name}分类统计</h3>
+                            </div>
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>子分类</th>
+                                        <th>金额</th>
+                                        <th>交易笔数</th>
+                                        <th>占比</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    const categoryTotal = getCategoryTotal(items);
+                    
+                    items.forEach(item => {
+                        const percentage = ((item.amount / categoryTotal) * 100).toFixed(1);
+                        html += `
+                            <tr>
+                                <td>${item.subCategory}</td>
+                                <td class="amount ${item.amount >= 0 ? 'positive' : 'negative'}">¥${formatAmount(item.amount)}</td>
+                                <td><span class="transaction-count">${item.transactionCount} 笔</span></td>
+                                <td>${percentage}%</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // 生成文字统计描述
+        function generateTextStats() {
+            const container = document.getElementById('textStats');
+            const summary = statsData.summary;
+            const categoryStats = statsData.categoryStats;
+            
+            // 计算各种统计指标
+            const totalTransactions = getTotalTransactionCount(categoryStats);
+            const avgTransactionAmount = totalTransactions > 0 ? summary.totalIncome / totalTransactions : 0;
+            const largestIncome = getLargestSubCategory(categoryStats.income);
+            const largestExpense = getLargestSubCategory(categoryStats.expense);
+            
+            let description = `
+                <h3>交易数据分析报告</h3>
+                <div class="stats-description">
+                    <p>根据您的交易数据统计，共记录了 <strong>${totalTransactions}</strong> 笔交易，总金额达到 <strong>¥${formatAmount(summary.totalIncome + Math.abs(summary.totalExpense))}</strong>。</p>
+                    
+                    <div class="stats-highlight">
+                        <p><strong>收入情况：</strong>总收入为 <strong>¥${formatAmount(summary.totalIncome)}</strong>，其中${largestIncome ? `"${largestIncome.subCategory}" 类别贡献最大，金额为 ¥${formatAmount(largestIncome.amount)}，占比 ${((largestIncome.amount / summary.totalIncome) * 100).toFixed(1)}%` : '暂无主要收入来源'}。</p>
+                    </div>
+                    
+                    <div class="stats-highlight">
+                        <p><strong>支出情况：</strong>总支出为 <strong>¥${formatAmount(summary.totalExpense)}</strong>，其中${largestExpense ? `"${largestExpense.subCategory}" 类别支出最多，金额为 ¥${formatAmount(largestExpense.amount)}，占比 ${((largestExpense.amount / summary.totalExpense) * 100).toFixed(1)}%` : '暂无主要支出项目'}。</p>
+                    </div>
+                    
+                    <p><strong>财务状况：</strong>当前净额为 <strong>¥${formatAmount(summary.netAmount)}</strong>，${summary.netAmount >= 0 ? '财务状况良好，收入大于支出' : '需要注意控制支出，当前支出大于收入'}。</p>
+                    
+                    <p><strong>交易频率：</strong>平均每笔交易金额约为 <strong>¥${formatAmount(avgTransactionAmount)}</strong>，交易分布较为${getTransactionDistribution(categoryStats)}。</p>
+                </div>
+            `;
+            
+            container.innerHTML = description;
+        }
+        
+        // 辅助函数
+        function getCategoryTotal(items) {
+            return items.reduce((sum, item) => sum + item.amount, 0);
+        }
+        
+        function getCategoryTransactionCount(items) {
+            return items.reduce((sum, item) => sum + item.transactionCount, 0);
+        }
+        
+        function getTotalTransactionCount(categoryStats) {
+            return Object.values(categoryStats).reduce((sum, items) => 
+                sum + items.reduce((itemSum, item) => itemSum + item.transactionCount, 0), 0);
+        }
+        
+        function getLargestSubCategory(items) {
+            return items.length > 0 ? items.reduce((max, item) => item.amount > max.amount ? item : max) : null;
+        }
+        
+        function getTransactionDistribution(categoryStats) {
+            const counts = Object.values(categoryStats).map(items => 
+                items.reduce((sum, item) => sum + item.transactionCount, 0)
+            );
+            const maxCount = Math.max(...counts);
+            const minCount = Math.min(...counts);
+            return (maxCount - minCount) / maxCount > 0.7 ? '集中' : '分散';
+        }
+        
+        function formatAmount(amount) {
+            return new Intl.NumberFormat('zh-CN', { 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2 
+            }).format(amount);
+        }
+        
+        function showError(message) {
+            const container = document.getElementById('categoryStats');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+    </script>
+</body>
+</html>

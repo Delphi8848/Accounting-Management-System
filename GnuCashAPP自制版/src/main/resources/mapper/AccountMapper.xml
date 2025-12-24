@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.AccountMapper">
+
+    <select id="getCommonAccounts" resultType="java.util.HashMap">
+        SELECT
+            accountType,
+            id,
+            level1,
+            level2,
+            level3,
+            description
+        FROM (
+                 SELECT 'ASSET' as accountType, id, level1, level2, level3, description FROM assets
+                 UNION ALL
+                 SELECT 'LIABILITY' as accountType, id, level1, level2, level3, description FROM liabilities
+                 UNION ALL
+                 SELECT 'EQUITY' as accountType, id, level1, level2, level3, description FROM equity
+                 UNION ALL
+                 SELECT 'INCOME' as accountType, id, level1, level2, level3, description FROM income
+                 UNION ALL
+                 SELECT 'EXPENSE' as accountType, id, level1, level2, level3, description FROM expenses
+             ) all_accounts
+        ORDER BY accountType, level1, level2, level3
+    </select>
+
+</mapper>

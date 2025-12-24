@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://123.207.197.116:3306/gnu_cash?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
+    username: root
+    password: 7804736Bb+
+server:
+  port: 8081
+
+
+xunfei:
+  client:
+    appid: 18829a2c
+    apiSecret: ZGI5NWM3OGM4OWYyMTdkODQxYmY4YTM2
+    apiKey: 441b6877e7bf5068e08f63a0bfc8984e
+
+
+
+
+

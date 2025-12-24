@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GNU Cash 财务记账软件 - 主页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004d80 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #003366;
+        }
+
+        .user-name {
+            font-size: 16px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #444;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid #e0e6ed;
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+            cursor: pointer;
+        }
+
+        .feature-header:hover {
+            color: #004d80;
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e6f0ff;
+            border-radius: 8px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #003366;
+            flex: 1;
+        }
+
+        .feature-dropdown-arrow {
+            font-size: 14px;
+            color: #4a6b8a;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card.expanded .feature-dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .feature-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .feature-card.expanded .feature-submenu {
+            max-height: 300px;
+        }
+
+        .feature-menu-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #4a6b8a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-menu-item:hover {
+            background-color: #e6f0ff;
+            color: #003366;
+            transform: translateX(5px);
+        }
+
+        .feature-menu-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-menu-icon {
+            font-size: 14px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .welcome-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 51, 102, 0.05) 0%, rgba(255,255,255,0) 70%);
+            z-index: 0;
+        }
+
+        .welcome-section > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            color: #003366;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .welcome-message {
+            color: #4a6b8a;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .feature-highlight {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: #e6f0ff;
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            color: #003366;
+            font-weight: 500;
+            border: 1px solid #d0e0ff;
+        }
+
+        @media (max-width: 768px) {
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">GNU Cash 财务记账软件</div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-name" id="userName">用户</div>
+                <button class="logout-btn" id="logoutBtn">退出登录</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h1 class="welcome-title">欢迎使用 GNU Cash 财务管理系统</h1>
+            <p class="welcome-message">高效管理您的财务状况，轻松追踪收支、管理账户和生成财务报表</p>
+            <div class="feature-highlight">
+                <div class="feature-item">智能记账</div>
+                <div class="feature-item">账户管理</div>
+                <div class="feature-item">财务分析</div>
+                <div class="feature-item">安全可靠</div>
+            </div>
+        </div>
+
+        <h2 class="page-title">财务管理功能</h2>
+        
+        <div class="feature-grid">
+            <!-- 仪表盘 -->
+            <div class="feature-card" id="dashboard-card">
+                <div class="feature-header" onclick="toggleFeature('dashboard-card')">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">仪表盘</div>
+                    <div class="feature-dropdown-arrow">▼</div>
+                </div>
+                <div class="feature-submenu">
+                    <div class="feature-menu-item" onclick="navigateTo('dashboard-overview')">
+                        <span class="feature-menu-icon">📈</span>
+                        <span>数据概览</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 交易管理 -->
+            <div class="feature-card" id="transactions-card">
+                <div class="feature-header" onclick="toggleFeature('transactions-card')">
+                    <div class="feature-icon">💳</div>
+                    <div class="feature-title">交易管理</div>
+                    <div class="feature-dropdown-arrow">▼</div>
+                </div>
+                <div class="feature-submenu">
+                    <div class="feature-menu-item" onclick="navigateTo('quick-record')">
+                        <span class="feature-menu-icon">➕</span>
+                        <span>通用科目记账</span>
+                    </div>
+                    <div class="feature-menu-item" onclick="navigateTo('transaction-list')">
+                        <span class="feature-menu-icon">📋</span>
+                        <span>交易记录</span>
+                    </div>
+                    <div class="feature-menu-item" onclick="navigateTo('transaction-category')">
+                        <span class="feature-menu-icon">📂</span>
+                        <span>交易分类</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 账户管理 -->
+            <div class="feature-card" id="accounts-card">
+                <div class="feature-header" onclick="toggleFeature('accounts-card')">
+                    <div class="feature-icon">🏦</div>
+                    <div class="feature-title">账户管理</div>
+                    <div class="feature-dropdown-arrow">▼</div>
+                </div>
+                <div class="feature-submenu">
+                    <div class="feature-menu-item" onclick="navigateTo('my-subjects')">
+                        <span class="feature-menu-icon">📚</span>
+                        <span>我的科目</span>
+                    </div>
+                    <div class="feature-menu-item" onclick="navigateTo('balance-query')">
+                        <span class="feature-menu-icon">💰</span>
+                        <span>余额查询</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 报表中心 -->
+            <div class="feature-card" id="reports-card">
+                <div class="feature-header" onclick="toggleFeature('reports-card')">
+                    <div class="feature-icon">📈</div>
+                    <div class="feature-title">报表中心</div>
+                    <div class="feature-dropdown-arrow">▼</div>
+                </div>
+                <div class="feature-submenu">
+                    <div class="feature-menu-item" onclick="navigateTo('balance-sheet')">
+                        <span class="feature-menu-icon">📊</span>
+                        <span>资产负债表</span>
+                    </div>
+                    <div class="feature-menu-item" onclick="navigateTo('cash-flow')">
+                        <span class="feature-menu-icon">💸</span>
+                        <span>现金流量表</span>
+                    </div>
+                    <div class="feature-menu-item" onclick="navigateTo('profit-loss')">
+                        <span class="feature-menu-icon">📈</span>
+                        <span>利润表</span>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- 智能分析 -->
+            <div class="feature-card" id="ai-analysis-card">
+                <div class="feature-header" onclick="toggleFeature('ai-analysis-card')">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-title">智能分析</div>
+                    <div class="feature-dropdown-arrow">▼</div>
+                </div>
+                <div class="feature-submenu">
+                    <div class="feature-menu-item" onclick="navigateTo('ai-data-analysis')">
+                        <span class="feature-menu-icon">🧠</span>
+                        <span>AI数据分析</span>
+                    </div>
+                </div>
+            </div>
+
+                        
+            <!-- 系统设置 -->
+            <div class="feature-card" id="settings-card">
+                <div class="feature-header" onclick="toggleFeature('settings-card')">
+                    <div class="feature-icon">⚙️</div>
+                    <div class="feature-title">系统设置</div>
+                    <div class="feature-dropdown-arrow">▼</div>
+                </div>
+                <div class="feature-submenu">
+                    <div class="feature-menu-item" onclick="navigateTo('profile')">
+                        <span class="feature-menu-icon">👤</span>
+                        <span>个人资料</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时检查用户登录状态
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = localStorage.getItem('currentUser');
+            
+            if (!currentUser) {
+                // 未登录，跳转到登录页面
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 解析用户信息
+            const user = JSON.parse(currentUser);
+            
+            // 显示用户信息
+            document.getElementById('userName').textContent = user.nickname || user.username;
+            
+            // 设置用户头像
+            const avatarElement = document.getElementById('userAvatar');
+            if (user.avatar) {
+                // 如果用户有头像数据，显示真实头像
+                avatarElement.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = user.avatar;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                avatarElement.appendChild(img);
+            } else if (user.username) {
+                // 如果用户没有头像数据，显示用户名首字母
+                avatarElement.textContent = user.username.charAt(0).toUpperCase();
+            }
+        });
+        
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            // 清除用户信息
+            localStorage.removeItem('currentUser');
+            
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        });
+        
+        // 切换功能卡片展开/收起状态
+        function toggleFeature(cardId) {
+            const card = document.getElementById(cardId);
+            card.classList.toggle('expanded');
+        }
+        
+        // 导航函数
+        function navigateTo(section) {
+                
+            // 以下是示例的页面跳转路径，实际项目中需要根据文件结构调整
+            switch(section) {
+                case 'dashboard-overview':
+                     window.location.href = 'dashboard_overview.html';
+                    break;
+                case 'quick-record':
+                    window.location.href = 'quick_record.html';
+                    break;
+                case 'transaction-list':
+                    window.location.href = 'transaction_records.html';
+                    break;
+                case 'transaction-category':
+                     window.location.href = 'transaction_category.html';
+                    break;
+                case 'my-subjects':
+                    window.location.href = 'my_subjects.html';
+                    break;
+                case 'balance-query':
+                    window.location.href = 'balance_query.html';
+                    break;
+                case 'balance-sheet':
+                  window.location.href = 'balance_sheet.html';
+                    break;
+                case 'cash-flow':
+                    window.location.href = 'cash_flow_statement.html';
+                    break;
+                case 'profit-loss':
+                  window.location.href = 'profit_loss_statement.html';
+                    break;
+                case 'profile':
+                      window.location.href = 'user_profile.html';
+                    break;
+                case 'ai-data-analysis':
+                       window.location.href = 'ai_analysis.html';
+                    break;
+                default:
+                    console.warn('未知的导航目标:', section);
+            }
+        }
+    </script>
+</body>
+</html>

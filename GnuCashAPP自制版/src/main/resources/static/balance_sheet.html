@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产负债报表 - </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 25px 40px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .date-selector label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .date-selector input {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .date-selector input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
+        }
+        
+        .export-dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .balance-sheet {
+            padding: 40px;
+        }
+        
+        .report-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 15px;
+        }
+        
+        .report-date {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 40px;
+        }
+        
+        .balance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+        
+        .balance-table th {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #dee2e6;
+            color: #495057;
+        }
+        
+        .balance-table td {
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            vertical-align: top;
+        }
+        
+        .category-header {
+            background: #e3f2fd !important;
+            font-weight: bold !important;
+            font-size: 1.1rem;
+        }
+        
+        .level1 {
+            background: #f3f4f6;
+            font-weight: 600;
+            padding-left: 30px !important;
+        }
+        
+        .level2 {
+            padding-left: 50px !important;
+        }
+        
+        .level3 {
+            padding-left: 70px !important;
+            color: #6c757d;
+        }
+        
+        .amount {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+        
+        .total-row {
+            background: #fff3cd !important;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .balance-check {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #155724;
+        }
+        
+        .balance-check.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-selector {
+                justify-content: space-between;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+            }
+            
+            .balance-table {
+                font-size: 0.9rem;
+            }
+            
+            .balance-table th,
+            .balance-table td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>资产负债表</h1>
+            <div class="subtitle">高校社团财务管理系统</div>
+        </div>
+        
+        <div class="controls">
+            <div class="date-selector">
+                <label for="reportDate">报表日期：</label>
+                <input type="date" id="reportDate" value="">
+            </div>
+            
+            <div class="action-buttons">
+            <button class="btn btn-primary" onclick="loadBalanceSheet()">
+                📊 生成报表
+            </button>
+            
+            <button class="btn btn-success" onclick="exportToCSV()">
+                📋 导出CSV
+            </button>
+            
+            <button class="btn btn-secondary" onclick="goBack()">
+                ↩️ 返回主页
+            </button>
+        </div>
+        </div>
+        
+        <div class="balance-sheet">
+            <div id="reportContent">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>请选择日期并生成报表</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+         </div>
+    </div>
+
+    <script>
+        // 设置默认日期为今天
+        document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+        
+        // API基础URL
+        const API_BASE = 'http://123.207.197.116:8081';
+        
+        // 获取当前用户ID
+        function getCurrentUserId() {
+            const currentUserStr = localStorage.getItem('currentUser');
+            if (currentUserStr) {
+                const currentUser = JSON.parse(currentUserStr);
+                return currentUser.id || '1';
+            }
+            return '1'; // 默认用户ID
+        }
+        
+        // 加载资产负债表
+        async function loadBalanceSheet() {
+            const reportDate = document.getElementById('reportDate').value;
+            const userId = getCurrentUserId();
+            
+            if (!reportDate) {
+                alert('请选择报表日期');
+                return;
+            }
+            
+            const reportContent = document.getElementById('reportContent');
+            reportContent.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在生成资产负债表...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/reports/balance-sheet?reportDate=${reportDate}&userId=${userId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayBalanceSheet(data, reportDate);
+                
+            } catch (error) {
+                console.error('加载资产负债表失败:', error);
+                reportContent.innerHTML = `
+                    <div class="error-message">
+                        <h3>❌ 加载失败</h3>
+                        <p>无法加载资产负债表数据：${error.message}</p>
+                        <p>请检查：</p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li>后端服务是否正常运行</li>
+                            <li>网络连接是否正常</li>
+                            <li>API接口地址是否正确</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        // 显示资产负债表
+        function displayBalanceSheet(data, reportDate) {
+            const reportContent = document.getElementById('reportContent');
+            
+            // 格式化金额
+            function formatAmount(amount) {
+                return new Intl.NumberFormat('zh-CN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(amount);
+            }
+            
+            let html = `
+                <div class="report-title">资产负债表</div>
+                <div class="report-date">报表日期：${reportDate}</div>
+                
+                <table class="balance-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60%">项目</th>
+                            <th style="width: 40%">金额（元）</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // 资产部分
+            html += `<tr><td colspan="2" class="category-header">资 产</td></tr>`;
+            
+            const assetGroups = {};
+            data.assets.forEach(item => {
+                const level2 = item.level2 || '其他';
+                if (!assetGroups[level2]) {
+                    assetGroups[level2] = [];
+                }
+                assetGroups[level2].push(item);
+            });
+            
+            Object.keys(assetGroups).forEach(level2 => {
+                html += `<tr><td class="level1">${level2}</td><td class="amount"></td></tr>`;
+                
+                assetGroups[level2].forEach(item => {
+                    html += `
+                        <tr>
+                            <td class="level3">${item.level3 || '明细'}</td>
+                            <td class="amount">${formatAmount(item.balance)}</td>
+                        </tr>
+                    `;
+                });
+            });
+            
+            html += `
+                <tr class="total-row">
+                    <td>资产总计</td>
+                    <td class="amount">${formatAmount(data.assetsTotal)}</td>
+                </tr>
+            `;
+            
+            // 负债部分
+            html += `<tr><td colspan="2" class="category-header">负债和所有者权益</td></tr>`;
+            html += `<tr><td class="level1">负 债</td><td class="amount"></td></tr>`;
+            
+            data.liabilities.forEach(item => {
+                html += `
+                    <tr>
+                        <td class="level3">${item.level2 || '明细'}</td>
+                        <td class="amount">${formatAmount(item.balance)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                <tr class="total-row">
+                    <td>负债合计</td>
+                    <td class="amount">${formatAmount(data.liabilitiesTotal)}</td>
+                </tr>
+            `;
+            
+            // 所有者权益部分
+            html += `<tr><td class="level1">所有者权益</td><td class="amount"></td></tr>`;
+            
+            data.equity.forEach(item => {
+                html += `
+                    <tr>
+                        <td class="level3">${item.level2 || '明细'}</td>
+                        <td class="amount">${formatAmount(item.balance)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                <tr class="total-row">
+                    <td>所有者权益合计</td>
+                    <td class="amount">${formatAmount(data.equityTotal)}</td>
+                </tr>
+                <tr class="total-row">
+                    <td>负债和所有者权益总计</td>
+                    <td class="amount">${formatAmount(data.liabilitiesTotal + data.equityTotal)}</td>
+                </tr>
+            `;
+            
+            html += '</tbody></table>';
+            
+            // 平衡检查
+            const isBalanced = data.assetsTotal === (data.liabilitiesTotal + data.equityTotal);
+            html += `
+                <div class="balance-check ${isBalanced ? '' : 'error'}">
+                    ${isBalanced ? '✅' : '❌'} 
+                    资产总计（${formatAmount(data.assetsTotal)}） 
+                    ${isBalanced ? '=' : '≠'} 
+                    负债和所有者权益总计（${formatAmount(data.liabilitiesTotal + data.equityTotal)}）
+                    ${isBalanced ? ' - 报表平衡' : ' - 报表不平衡'}
+                </div>
+            `;
+            
+            reportContent.innerHTML = html;
+        }
+        
+
+        
+        // 导出CSV功能
+        function exportToCSV() {
+            const reportContent = document.getElementById('reportContent');
+            
+            if (reportContent.innerHTML.includes('loading-spinner')) {
+                alert('请先生成报表');
+                return;
+            }
+            
+            const reportDate = document.getElementById('reportDate').value;
+            
+            // 获取表格数据
+            const table = reportContent.querySelector('.balance-table');
+            if (!table) {
+                alert('未找到报表数据');
+                return;
+            }
+            
+            // 创建CSV内容
+            let csvContent = '项目,金额(元)\n';
+            
+            const rows = table.querySelectorAll('tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                const rowData = [];
+                cells.forEach(cell => {
+                    // 清理文本内容
+                    let text = cell.textContent.trim();
+                    // 处理包含逗号的情况
+                    if (text.includes(',')) {
+                        text = `"${text}"`;
+                    }
+                    rowData.push(text);
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            // 创建Blob对象并下载
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `资产负债表_${reportDate}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // 返回主页
+        function goBack() {
+            window.location.href = 'user_main.html';
+        }
+        
+        // 页面加载时自动生成今日报表
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                loadBalanceSheet();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

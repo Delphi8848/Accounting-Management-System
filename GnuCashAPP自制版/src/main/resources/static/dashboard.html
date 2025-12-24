@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>控制台 - 电影推荐系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgba(15, 23, 42, 0.95);
+            color: #e2e8f0;
+            padding: 20px;
+            min-height: 100%;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-header h1 {
+            color: #fbbf24;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-header p {
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .quick-actions {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-actions h2 {
+            color: #fbbf24;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .action-btn {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            color: #fbbf24;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .action-btn:hover {
+            background: rgba(251, 191, 36, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(251, 191, 36, 0.2);
+        }
+
+        .action-btn i {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>欢迎使用电影推荐系统</h1>
+            <p>后台管理控制台</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number" id="user-count">0</div>
+                <div class="stat-label">总用户数</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="stat-number" id="movie-count">0</div>
+                <div class="stat-label">电影总数</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="stat-number" id="favorite-count">0</div>
+                <div class="stat-label">收藏总数</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-comment-alt"></i>
+                </div>
+                <div class="stat-number" id="review-count">0</div>
+                <div class="stat-label">评论总数</div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2>快速操作</h2>
+            <div class="actions-grid">
+                <a href="#" class="action-btn" onclick="parent.loadPage('admin_management.html')">
+                    <i class="fas fa-users"></i>
+                    用户管理
+                </a>
+                <a href="#" class="action-btn" onclick="parent.loadPage('admin_movies.html')">
+                    <i class="fas fa-film"></i>
+                    电影管理
+                </a>
+                <a href="#" class="action-btn" onclick="parent.loadPage('admin_favorites.html')">
+                    <i class="fas fa-heart"></i>
+                    收藏管理
+                </a>
+                <a href="#" class="action-btn" onclick="parent.loadPage('admin_reviews.html')">
+                    <i class="fas fa-comment-alt"></i>
+                    评论管理
+                </a>
+                <a href="#" class="action-btn" onclick="parent.loadPage('admin_analyze.html')">
+                    <i class="fas fa-chart-pie"></i>
+                    电影数据分析
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API基础URL
+        const API_BASE_URL = 'http://localhost:8089';
+
+        // 页面加载完成后获取数据
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有统计数据
+            fetchAllData();
+        });
+
+        // 获取所有数据
+        async function fetchAllData() {
+            try {
+                // 获取用户数量
+                const usersResponse = await fetch(`${API_BASE_URL}/users`);
+                if (usersResponse.ok) {
+                    const usersData = await usersResponse.json();
+                    const userCount = usersData.length || 0;
+                    updateStat('users', userCount);
+                }
+
+                // 获取电影数量
+                const moviesResponse = await fetch(`${API_BASE_URL}/movies`);
+                if (moviesResponse.ok) {
+                    const moviesData = await moviesResponse.json();
+                    const movieCount = moviesData.length || 0;
+                    updateStat('movies', movieCount);
+                }
+
+                // 获取收藏数量
+                const favoritesResponse = await fetch(`${API_BASE_URL}/favorites`);
+                if (favoritesResponse.ok) {
+                    const favoritesData = await favoritesResponse.json();
+                    const favoriteCount = favoritesData.length || 0;
+                    updateStat('favorites', favoriteCount);
+                }
+
+                // 获取评论数量
+                const reviewsResponse = await fetch(`${API_BASE_URL}/movie-reviews`);
+                if (reviewsResponse.ok) {
+                    const reviewsData = await reviewsResponse.json();
+                    const reviewCount = reviewsData.length || 0;
+                    updateStat('reviews', reviewCount);
+                }
+            } catch (error) {
+                console.error('获取数据失败:', error);
+                // 如果获取数据失败，保持默认值
+            }
+        }
+
+        // 更新统计数据
+        function updateStat(type, count) {
+            let element;
+            switch(type) {
+                case 'users':
+                    element = document.getElementById('user-count');
+                    break;
+                case 'movies':
+                    element = document.getElementById('movie-count');
+                    break;
+                case 'favorites':
+                    element = document.getElementById('favorite-count');
+                    break;
+                case 'reviews':
+                    element = document.getElementById('review-count');
+                    break;
+            }
+            
+            if (element) {
+                // 格式化数字显示
+                element.textContent = formatNumber(count);
+            }
+        }
+
+        // 格式化数字显示
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    </script>
+</body>
+</html>

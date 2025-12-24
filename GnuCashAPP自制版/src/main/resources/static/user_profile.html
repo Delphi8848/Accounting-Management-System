@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人资料 - </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #667eea;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #444;
+            font-size: 28px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+        }
+
+        .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #667eea;
+            border: 3px solid #667eea;
+            margin: 0 auto;
+        }
+
+        .change-avatar-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .avatar-upload {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .readonly-field {
+            background-color: #f5f5f5;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .cancel-btn {
+            background: #f5f7fa;
+            color: #667eea;
+            border: 1px solid #ddd;
+        }
+
+        .cancel-btn:hover {
+            background: #eef1f7;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(200%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo" onclick="goToMain()">高校社团管理系统</div>
+            <div class="user-info">
+                <img src="" alt="头像" class="user-avatar" id="userAvatar">
+                <div class="user-name" id="userName">用户</div>
+                <button class="back-btn" onclick="goToMain()">返回主页</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">个人资料</h1>
+        
+        <div class="profile-card">
+            <div class="avatar-section">
+                <div class="avatar-container">
+                    <div class="avatar-placeholder" id="avatarPlaceholder">U</div>
+                    <img src="" alt="头像" class="profile-avatar" id="profileAvatar" style="display: none;">
+                    <button class="change-avatar-btn" onclick="document.getElementById('avatarUpload').click()">✏️</button>
+                    <input type="file" id="avatarUpload" class="avatar-upload" accept="image/*">
+                </div>
+                <p>点击头像编辑个人信息</p>
+            </div>
+            
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" class="readonly-field" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <div class="password-toggle">
+                        <input type="password" id="password" name="password" placeholder="输入新密码（留空则不修改）">
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()">👁️</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" name="email" placeholder="请输入邮箱地址">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">手机号</label>
+                    <input type="tel" id="phone" name="phone" placeholder="请输入手机号码">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gender">性别</label>
+                    <select id="gender" name="gender">
+                        <option value="">请选择性别</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="timezone">时区</label>
+                    <select id="timezone" name="timezone">
+                        <option value="">请选择时区</option>
+                        <option value="UTC+8">UTC+8 (北京时间)</option>
+                        <option value="UTC+0">UTC+0 (格林威治时间)</option>
+                        <option value="UTC-5">UTC-5 (美国东部时间)</option>
+                        <option value="UTC-8">UTC-8 (美国太平洋时间)</option>
+                        <option value="UTC+1">UTC+1 (欧洲中部时间)</option>
+                        <option value="UTC+9">UTC+9 (日本时间)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="created">创建时间</label>
+                    <input type="text" id="created" name="created" class="readonly-field" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userRole">用户角色</label>
+                    <input type="text" id="userRole" name="userRole" class="readonly-field" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="status">账户状态</label>
+                    <input type="text" id="status" name="status" class="readonly-field" readonly>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn cancel-btn" onclick="resetForm()">取消</button>
+                    <button type="submit" class="btn save-btn">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // 当前用户信息
+        let currentUser = null;
+        let originalUser = null;
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户登录状态
+            const userStr = localStorage.getItem('currentUser');
+            if (!userStr) {
+                // 未登录，跳转到登录页面
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 解析用户信息
+            currentUser = JSON.parse(userStr);
+            // 确保字段名统一，兼容旧版本数据
+            if (currentUser.avatar_base64 && !currentUser.avatar) {
+                currentUser.avatar = currentUser.avatar_base64;
+                delete currentUser.avatar_base64;
+            }
+            if (currentUser.created_at && !currentUser.created) {
+                currentUser.created = currentUser.created_at;
+                delete currentUser.created_at;
+            }
+            if (currentUser.user_role && !currentUser.userRole) {
+                currentUser.userRole = currentUser.user_role;
+                delete currentUser.user_role;
+            }
+            originalUser = JSON.parse(JSON.stringify(currentUser));
+            
+            // 显示用户信息
+            displayUserInfo();
+            
+            // 绑定表单提交事件
+            document.getElementById('profileForm').addEventListener('submit', saveProfile);
+            
+            // 绑定头像上传事件
+            document.getElementById('avatarUpload').addEventListener('change', handleAvatarUpload);
+        });
+        
+        // 显示用户信息
+        function displayUserInfo() {
+            // 设置用户基本信息
+            document.getElementById('userName').textContent = currentUser.username || '用户';
+            
+            // 填充表单数据
+            document.getElementById('username').value = currentUser.username || '';
+            document.getElementById('password').value = ''; // 密码字段留空
+            document.getElementById('email').value = currentUser.email || '';
+            document.getElementById('phone').value = currentUser.phone || '';
+            document.getElementById('gender').value = currentUser.gender || '';
+            document.getElementById('timezone').value = currentUser.timezone || '';
+            document.getElementById('created').value = formatDate(currentUser.created) || '';
+            document.getElementById('userRole').value = currentUser.userRole || '';
+            document.getElementById('status').value = currentUser.status === '1' ? '启用' : '禁用';
+            
+            // 显示头像
+            if (currentUser.avatar) {
+                document.getElementById('profileAvatar').src = currentUser.avatar;
+                document.getElementById('profileAvatar').style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
+                
+                // 更新顶部头像
+                document.getElementById('userAvatar').src = currentUser.avatar;
+                document.getElementById('userAvatar').style.display = 'block';
+            } else {
+                document.getElementById('avatarPlaceholder').textContent = (currentUser.username || 'U').charAt(0).toUpperCase();
+                document.getElementById('profileAvatar').style.display = 'none';
+                document.getElementById('avatarPlaceholder').style.display = 'flex';
+                
+                // 更新顶部头像占位符
+                document.getElementById('userAvatar').style.display = 'none';
+            }
+        }
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        
+        // 处理头像上传
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // 检查文件类型
+            if (!file.type.startsWith('image/')) {
+                showNotification('请选择图片文件', 'error');
+                return;
+            }
+            
+            // 检查文件大小（限制为2MB）
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('图片大小不能超过2MB', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // 更新用户头像
+                currentUser.avatar = e.target.result;
+                
+                // 显示新头像
+                document.getElementById('profileAvatar').src = e.target.result;
+                document.getElementById('profileAvatar').style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
+                
+                // 更新顶部头像
+                document.getElementById('userAvatar').src = e.target.result;
+                document.getElementById('userAvatar').style.display = 'block';
+                
+                showNotification('头像已更新', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 切换密码可见性
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle-btn');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+        
+        // 保存个人资料
+        async function saveProfile(event) {
+            event.preventDefault();
+            
+            // 获取表单数据
+            const updatedUser = {
+                id: currentUser.id,
+                username: currentUser.username, // 用户名不可修改
+                password: document.getElementById('password').value || currentUser.password, // 密码为空则不修改
+                avatar: currentUser.avatar,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                gender: document.getElementById('gender').value,
+                timezone: document.getElementById('timezone').value,
+                userRole: currentUser.userRole, // 角色不可修改
+                status: currentUser.status, // 状态不可修改
+                created: currentUser.created // 创建时间不可修改
+            };
+            
+            // 验证邮箱格式
+            if (updatedUser.email && !isValidEmail(updatedUser.email)) {
+                showNotification('请输入有效的邮箱地址', 'error');
+                return;
+            }
+            
+            // 验证手机号格式
+            if (updatedUser.phone && !isValidPhone(updatedUser.phone)) {
+                showNotification('请输入有效的手机号码', 'error');
+                return;
+            }
+            
+            try {
+                // 调用后端API更新用户信息
+                const response = await fetch('http://123.207.197.116:8081/api/users/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedUser)
+                });
+                
+                if (response.ok) {
+                    // 更新成功
+                    currentUser = { ...currentUser, ...updatedUser };
+                    originalUser = JSON.parse(JSON.stringify(currentUser));
+                    
+                    // 保存到localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // 显示成功消息
+                    showNotification('个人资料已成功保存', 'success');
+                } else {
+                    throw new Error('保存失败');
+                }
+            } catch (error) {
+                console.error('保存失败:', error);
+                showNotification('保存失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 验证邮箱格式
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // 验证手机号格式
+        function isValidPhone(phone) {
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            return phoneRegex.test(phone);
+        }
+        
+        // 重置表单
+        function resetForm() {
+            // 恢复原始数据
+            currentUser = JSON.parse(JSON.stringify(originalUser));
+            displayUserInfo();
+            showNotification('已恢复到原始数据', 'success');
+        }
+        
+        // 显示通知
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + type;
+            
+            // 显示通知
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 返回主页
+        function goToMain() {
+            window.location.href = 'user_main.html';
+        }
+    </script>
+</body>
+</html>

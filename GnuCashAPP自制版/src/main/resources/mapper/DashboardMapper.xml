@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.DashboardMapper">
+
+    <select id="getFinancialSummary" resultType="java.util.HashMap">
+        SELECT
+        <!-- 基础财务数据（全量数据，用于会计平衡验证） -->
+        (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM asset_transactions WHERE user_id = #{userId}) AS assets,
+        (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM liability_transactions WHERE user_id = #{userId}) AS liabilities,
+        (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM equity_transactions WHERE user_id = #{userId}) AS equity,
+        (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM income_transactions WHERE user_id = #{userId}) AS income,
+        (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM expense_transactions WHERE user_id = #{userId}) AS expenses,
+
+        <!-- 会计恒等式验证  -->
+        (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM asset_transactions WHERE user_id = #{userId}) -
+        ((SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM liability_transactions WHERE user_id = #{userId}) +
+        (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM equity_transactions WHERE user_id = #{userId}) +
+        (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM income_transactions WHERE user_id = #{userId}) -
+        (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM expense_transactions WHERE user_id = #{userId})) AS diff,
+
+        <!-- 本月收支数据（用于月度展示） -->
+        (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM income_transactions
+        WHERE user_id = #{userId} AND MONTH(transaction_date) = #{month} AND YEAR(transaction_date) = #{year}) AS monthIncome,
+        (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM expense_transactions
+        WHERE user_id = #{userId} AND MONTH(transaction_date) = #{month} AND YEAR(transaction_date) = #{year}) AS monthExpense,
+
+        <!-- 账户余额数据 -->
+        (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM asset_transactions
+        WHERE user_id = #{userId} AND asset_id = 1) AS cashBalance,
+        (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM asset_transactions
+        WHERE user_id = #{userId} AND asset_id = 2) AS depositBalance,
+        (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM asset_transactions
+        WHERE user_id = #{userId} AND asset_id IN (1, 2, 3)) AS liquidAssets,
+
+        <!-- 年度收入数据 -->
+        (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM income_transactions
+        WHERE user_id = #{userId} AND YEAR(transaction_date) = #{year}) AS annualIncome,
+
+        <!-- 月均支出（过去6个月） -->
+        (SELECT IFNULL(AVG(monthly_expense), 0) FROM (
+        SELECT MONTH(transaction_date) as month, YEAR(transaction_date) as year,
+        SUM(debit_amount - credit_amount) as monthly_expense
+        FROM expense_transactions
+        WHERE user_id = #{userId} AND transaction_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+        GROUP BY YEAR(transaction_date), MONTH(transaction_date)
+        ) t) AS avgMonthlyExpense
+    </select>
+
+</mapper>

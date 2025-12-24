@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.TransactionMapper">
+
+    <!-- 验证会计恒等式平衡性 -->
+    <select id="validateAccountingEquation" resultType="java.util.HashMap">
+        SELECT
+            -- 各科目当前余额
+            (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM asset_transactions WHERE user_id = #{userId}) AS assets,
+            (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM liability_transactions WHERE user_id = #{userId}) AS liabilities,
+            (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM equity_transactions WHERE user_id = #{userId}) AS equity,
+            (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM income_transactions WHERE user_id = #{userId}) AS income,
+            (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM expense_transactions WHERE user_id = #{userId}) AS expenses,
+
+            -- 会计恒等式差额：资产 - (负债 + 权益 + 收入 - 支出)
+            (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM asset_transactions WHERE user_id = #{userId}) -
+            ((SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM liability_transactions WHERE user_id = #{userId}) +
+             (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM equity_transactions WHERE user_id = #{userId}) +
+             (SELECT IFNULL(SUM(credit_amount - debit_amount), 0) FROM income_transactions WHERE user_id = #{userId}) -
+             (SELECT IFNULL(SUM(debit_amount - credit_amount), 0) FROM expense_transactions WHERE user_id = #{userId})) AS currentDiff
+    </select>
+
+    <!-- 插入资产交易记录 -->
+    <insert id="insertAssetTransaction">
+        INSERT INTO asset_transactions (
+            user_id, asset_id, transaction_date, description,
+            debit_amount, credit_amount, created_at
+        ) VALUES (
+                     #{transaction.userId}, #{transaction.accountId}, #{transaction.transactionDate},
+                     #{transaction.description}, #{transaction.debitAmount}, #{transaction.creditAmount}, NOW()
+                 )
+    </insert>
+
+    <!-- 插入负债交易记录 -->
+    <insert id="insertLiabilityTransaction">
+        INSERT INTO liability_transactions (
+            user_id, liability_id, transaction_date, description,
+            debit_amount, credit_amount, created_at
+        ) VALUES (
+                     #{transaction.userId}, #{transaction.accountId}, #{transaction.transactionDate},
+                     #{transaction.description}, #{transaction.debitAmount}, #{transaction.creditAmount}, NOW()
+                 )
+    </insert>
+
+    <!-- 插入权益交易记录 -->
+    <insert id="insertEquityTransaction">
+        INSERT INTO equity_transactions (
+            user_id, equity_id, transaction_date, description,
+            debit_amount, credit_amount, created_at
+        ) VALUES (
+                     #{transaction.userId}, #{transaction.accountId}, #{transaction.transactionDate},
+                     #{transaction.description}, #{transaction.debitAmount}, #{transaction.creditAmount}, NOW()
+                 )
+    </insert>
+
+    <!-- 插入收入交易记录 -->
+    <insert id="insertIncomeTransaction">
+        INSERT INTO income_transactions (
+            user_id, income_id, transaction_date, description,
+            debit_amount, credit_amount, created_at
+        ) VALUES (
+                     #{transaction.userId}, #{transaction.accountId}, #{transaction.transactionDate},
+                     #{transaction.description}, #{transaction.debitAmount}, #{transaction.creditAmount}, NOW()
+                 )
+    </insert>
+
+    <!-- 插入支出交易记录 -->
+    <insert id="insertExpenseTransaction">
+        INSERT INTO expense_transactions (
+            user_id, expense_id, transaction_date, description,
+            debit_amount, credit_amount, created_at
+        ) VALUES (
+                     #{transaction.userId}, #{transaction.accountId}, #{transaction.transactionDate},
+                     #{transaction.description}, #{transaction.debitAmount}, #{transaction.creditAmount}, NOW()
+                 )
+    </insert>
+
+</mapper>

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>常规记账</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .step-container {
+            margin-bottom: 30px;
+        }
+        
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4CAF50;
+        }
+        
+        .transaction-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .transaction-type {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .transaction-type:hover {
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+        
+        .transaction-type.selected {
+            background: #e8f5e8;
+            border-color: #4CAF50;
+            color: #2e7d32;
+        }
+        
+        .transaction-type-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .transaction-type-label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .account-select {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .account-select:hover {
+            border-color: #4CAF50;
+        }
+        
+        .account-select.selected {
+            background: #e8f5e8;
+            border-color: #4CAF50;
+        }
+        
+        .account-path {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #c62828;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .transaction-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .transaction-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .transaction-side {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .transaction-side.main {
+            border-color: #4CAF50;
+        }
+        
+        .transaction-side.counter {
+            border-color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>快速记账</h1>
+            <p>GNU Cash 财务记账软件</p>
+        </div>
+        
+        <div class="content">
+            <!-- 第一步：选择主交易类型 -->
+            <div class="step-container" id="step1">
+                <div class="step-title">第一步：选择交易类型</div>
+                <div class="transaction-type-grid">
+                    <div class="transaction-type" data-type="income">
+                        <div class="transaction-type-icon">💰</div>
+                        <div class="transaction-type-label">INCOME 收入</div>
+                    </div>
+                    <div class="transaction-type" data-type="asset">
+                        <div class="transaction-type-icon">🏦</div>
+                        <div class="transaction-type-label">ASSET 资产</div>
+                    </div>
+                    <div class="transaction-type" data-type="liability">
+                        <div class="transaction-type-icon">📋</div>
+                        <div class="transaction-type-label">LIABILITIES 负债</div>
+                    </div>
+                    <div class="transaction-type" data-type="equity">
+                        <div class="transaction-type-icon">📊</div>
+                        <div class="transaction-type-label">EQUITY 所有者权益</div>
+                    </div>
+                    <div class="transaction-type" data-type="expense">
+                        <div class="transaction-type-icon">💸</div>
+                        <div class="transaction-type-label">EXPENSE 支出</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第二步：选择具体科目并填写详情 -->
+            <div class="step-container hidden" id="step2">
+                <div class="step-title">第二步：选择具体科目并填写详情</div>
+                <div id="subAccountList" class="account-list"></div>
+                
+                <div class="form-group">
+                    <label for="amount">交易金额 (¥)</label>
+                    <input type="number" id="amount" class="form-control" placeholder="请输入交易金额" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="transactionDate">交易日期</label>
+                    <input type="date" id="transactionDate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="description">交易描述</label>
+                    <textarea id="description" class="form-control" placeholder="请输入交易描述" rows="3"></textarea>
+                </div>
+            </div>
+            
+            <!-- 第三步：选择资金来源/对应科目 -->
+            <div class="step-container hidden" id="step3">
+                <div class="step-title">第三步：选择资金来源/对应科目</div>
+                <div id="counterAccountList" class="account-list"></div>
+                
+                <div class="transaction-details" id="transactionPreview">
+                    <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">交易预览</div>
+                    <div class="transaction-summary">
+                        <div class="transaction-side main">
+                            <strong>主交易科目</strong>
+                            <div id="mainAccountPreview"></div>
+                            <div>金额: ¥<span id="mainAmountPreview">0.00</span></div>
+                        </div>
+                        <div class="transaction-side counter">
+                            <strong>对应科目</strong>
+                            <div id="counterAccountPreview"></div>
+                            <div>金额: ¥<span id="counterAmountPreview">0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 消息显示区域 -->
+            <div id="messageArea"></div>
+            
+            <!-- 按钮组 -->
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="goBack()">上一步</button>
+                <button class="btn btn-primary" onclick="goNext()" id="nextBtn">下一步</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedTransactionType = '';
+        let accountsData = {};
+        let selectedMainAccount = null;
+        let selectedCounterAccount = null;
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查登录状态
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transactionDate').value = today;
+            
+            // 加载账户数据
+            loadAccounts();
+            
+            // 绑定交易类型选择事件
+            document.querySelectorAll('.transaction-type').forEach(type => {
+                type.addEventListener('click', function() {
+                    selectTransactionType(this.dataset.type);
+                });
+            });
+        });
+        
+        // 加载账户数据
+        async function loadAccounts() {
+            try {
+                const response = await fetch('http://123.207.197.116:8081/api/accounts/common');
+                if (!response.ok) {
+                    throw new Error('获取账户数据失败');
+                }
+                accountsData = await response.json();
+            } catch (error) {
+                showMessage('获取账户数据失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 选择交易类型
+        function selectTransactionType(type) {
+            selectedTransactionType = type;
+            
+            // 移除所有选中状态
+            document.querySelectorAll('.transaction-type').forEach(t => {
+                t.classList.remove('selected');
+            });
+            
+            // 添加当前选中状态
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+            
+            // 启用下一步按钮
+            document.getElementById('nextBtn').disabled = false;
+        }
+        
+        // 下一步
+        function goNext() {
+            if (currentStep === 1) {
+                if (!selectedTransactionType) {
+                    showMessage('请选择交易类型', 'error');
+                    return;
+                }
+                showStep(2);
+                loadSubAccounts();
+            } else if (currentStep === 2) {
+                if (!selectedMainAccount) {
+                    showMessage('请选择具体科目', 'error');
+                    return;
+                }
+                
+                const amount = document.getElementById('amount').value;
+                const date = document.getElementById('transactionDate').value;
+                
+                if (!amount || amount <= 0) {
+                    showMessage('请输入有效的交易金额', 'error');
+                    return;
+                }
+                
+                if (!date) {
+                    showMessage('请选择交易日期', 'error');
+                    return;
+                }
+                
+                showStep(3);
+                loadCounterAccounts();
+            } else if (currentStep === 3) {
+                if (!selectedCounterAccount) {
+                    showMessage('请选择对应科目', 'error');
+                    return;
+                }
+                submitTransaction();
+            }
+        }
+        
+        // 上一步
+        function goBack() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        }
+        
+        // 显示指定步骤
+        function showStep(step) {
+            document.querySelectorAll('.step-container').forEach(container => {
+                container.classList.add('hidden');
+            });
+            
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            
+            // 更新按钮文本
+            const nextBtn = document.getElementById('nextBtn');
+            if (step === 3) {
+                nextBtn.textContent = '确认记账';
+            } else {
+                nextBtn.textContent = '下一步';
+            }
+            
+            currentStep = step;
+        }
+        
+        // 加载第二步的具体科目列表
+        function loadSubAccounts() {
+            const subList = document.getElementById('subAccountList');
+            
+            subList.innerHTML = '<div class="loading">加载科目列表...</div>';
+            
+            // 根据交易类型确定具体科目
+            let subAccounts = [];
+            
+            switch (selectedTransactionType) {
+                case 'income':
+                    subAccounts = accountsData.income || [];
+                    break;
+                case 'asset':
+                    subAccounts = accountsData.assets || [];
+                    break;
+                case 'liability':
+                    subAccounts = accountsData.liabilities || [];
+                    break;
+                case 'equity':
+                    subAccounts = accountsData.equity || [];
+                    break;
+                case 'expense':
+                    subAccounts = accountsData.expenses || [];
+                    break;
+            }
+            
+            // 渲染具体科目列表
+            renderAccountList(subAccounts, subList, 'main');
+        }
+        
+        // 加载第三步的对应科目列表
+        function loadCounterAccounts() {
+            const counterList = document.getElementById('counterAccountList');
+            
+            counterList.innerHTML = '<div class="loading">加载对应科目...</div>';
+            
+            // 根据交易类型确定对应科目
+            let counterAccounts = [];
+            
+            switch (selectedTransactionType) {
+                case 'income':
+                    counterAccounts = [...(accountsData.assets || []), ...(accountsData.liabilities || [])];
+                    break;
+                case 'asset':
+                    counterAccounts = [...(accountsData.assets || []), ...(accountsData.liabilities || []), ...(accountsData.equity || [])];
+                    break;
+                case 'liability':
+                    counterAccounts = [...(accountsData.assets || []), ...(accountsData.liabilities || [])];
+                    break;
+                case 'equity':
+                    counterAccounts = [...(accountsData.assets || []), ...(accountsData.liabilities || [])];
+                    break;
+                case 'expense':
+                    counterAccounts = [...(accountsData.assets || []), ...(accountsData.liabilities || [])];
+                    break;
+            }
+            
+            // 渲染对应科目列表
+            renderAccountList(counterAccounts, counterList, 'counter');
+            
+            // 更新交易预览
+            updateTransactionPreview();
+        }
+        
+        // 渲染账户列表
+        function renderAccountList(accounts, container, type) {
+            if (accounts.length === 0) {
+                container.innerHTML = '<div class="error-message">暂无可用科目</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            accounts.forEach(account => {
+                const accountElement = document.createElement('div');
+                accountElement.className = 'account-select';
+                accountElement.innerHTML = `
+                    <div><strong>${account.name}</strong></div>
+                    <div class="account-path">${account.fullPath}</div>
+                `;
+                
+                accountElement.addEventListener('click', () => {
+                    selectAccount(account, type);
+                });
+                
+                container.appendChild(accountElement);
+            });
+        }
+        
+        // 选择账户
+        function selectAccount(account, type) {
+            // 移除其他选中状态
+            document.querySelectorAll(`#${type}AccountList .account-select`).forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // 添加当前选中状态
+            event.target.closest('.account-select').classList.add('selected');
+            
+            if (type === 'main') {
+                selectedMainAccount = account;
+            } else {
+                selectedCounterAccount = account;
+            }
+            
+            // 更新交易预览
+            updateTransactionPreview();
+        }
+        
+        // 更新交易预览
+        function updateTransactionPreview() {
+            const amount = document.getElementById('amount').value;
+            const description = document.getElementById('description').value;
+            
+            if (selectedMainAccount && amount) {
+                document.getElementById('mainAccountPreview').textContent = selectedMainAccount.name;
+                document.getElementById('mainAmountPreview').textContent = parseFloat(amount).toFixed(2);
+                
+                if (selectedCounterAccount) {
+                    document.getElementById('counterAccountPreview').textContent = selectedCounterAccount.name;
+                    document.getElementById('counterAmountPreview').textContent = parseFloat(amount).toFixed(2);
+                } else {
+                    document.getElementById('counterAccountPreview').textContent = '请选择对应科目';
+                    document.getElementById('counterAmountPreview').textContent = '0.00';
+                }
+            }
+        }
+        
+        // 提交交易
+        async function submitTransaction() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const amount = document.getElementById('amount').value;
+            const date = document.getElementById('transactionDate').value;
+            const description = document.getElementById('description').value;
+            
+            // 根据会计原则确定isDebit字段
+            // 借方（Debit）: 资产增加、费用增加、负债减少、权益减少、收入减少
+            // 非借方（Debit为false）: 资产减少、费用减少、负债增加、权益增加、收入增加
+            
+            // 主交易：根据交易类型确定isDebit
+            // 注意：用户选择交易类型时，该科目通常是增加的
+            let mainIsDebit = false;
+            switch (selectedTransactionType) {
+                case 'income':
+                    mainIsDebit = false; // 收入增加记贷方
+                    break;
+                case 'asset':
+                    mainIsDebit = true; // 资产增加记借方
+                    break;
+                case 'liability':
+                    mainIsDebit = false; // 负债增加记贷方
+                    break;
+                case 'equity':
+                    mainIsDebit = false; // 权益增加记贷方
+                    break;
+                case 'expense':
+                    mainIsDebit = true; // 费用增加记借方
+                    break;
+            }
+            
+            // 对应交易：与主交易相反
+            const counterIsDebit = !mainIsDebit;
+            
+            const transactionData = {
+                userId: currentUser.id,
+                amount: parseFloat(amount),
+                transactionDate: date,
+                description: description,
+                mainTransaction: {
+                    accountId: selectedMainAccount.id,
+                    accountType: selectedMainAccount.accountType,
+                    amount: parseFloat(amount),
+                    isDebit: mainIsDebit,
+                    description: description
+                },
+                counterTransaction: {
+                    accountId: selectedCounterAccount.id,
+                    accountType: selectedCounterAccount.accountType,
+                    amount: parseFloat(amount),
+                    isDebit: counterIsDebit,
+                    description: description
+                }
+            };
+            
+            try {
+                const response = await fetch('http://123.207.197.116:8081/api/transactions/quick-record', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(transactionData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('记账成功！', 'success');
+                    // 3秒后返回主页
+                    setTimeout(() => {
+                        window.location.href = 'user_main.html';
+                    }, 3000);
+                } else {
+                    showMessage('记账失败: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('网络错误: ' + error.message, 'error');
+            }
+        }
+        
+        // 显示消息
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('messageArea');
+            const messageClass = type === 'error' ? 'error-message' : 'success-message';
+            
+            messageArea.innerHTML = `<div class="${messageClass}">${message}</div>`;
+            
+            // 5秒后自动清除消息
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 5000);
+        }
+        
+        // 监听金额输入变化，实时更新预览
+        document.getElementById('amount').addEventListener('input', updateTransactionPreview);
+    </script>
+</body>
+</html>

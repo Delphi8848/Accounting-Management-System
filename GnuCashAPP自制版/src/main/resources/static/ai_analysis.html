@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI财务分析助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .ai-chat-container {
+            display: flex;
+            gap: 20px;
+            height: 80vh;
+            margin: 0 -10px;
+        }
+
+        .sidebar {
+            flex: 1;
+            min-width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-area {
+            flex: 2;
+            min-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-sidebar {
+            flex: 1;
+            min-width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .welcome-section p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .classic-questions {
+            margin-top: 30px;
+        }
+
+        .classic-questions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .question-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .question-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .chat-history {
+            margin-top: 30px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-history h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .history-item {
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .history-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            background: white;
+            border: 1px solid #e9ecef;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* AI回复内容美化样式 */
+        .ai-table {
+            width: 100%;
+            margin: 10px 0;
+            border-collapse: collapse;
+        }
+        
+        .table-row {
+            display: flex;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-cell {
+            flex: 1;
+            padding: 8px 12px;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-cell:last-child {
+            border-right: none;
+        }
+        
+        .table-separator {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+            margin: 8px 0;
+        }
+        
+        .ai-list {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .ai-list li {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+        
+        .ai-list ul, .ai-list ol {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .clear-history {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .clear-history:hover {
+            background: #c82333;
+        }
+        
+        /* 历史记录下拉框样式 */
+        .history-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            background: white;
+        }
+        
+        .history-select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .history-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .new-chat-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .new-chat-btn:hover {
+            background: linear-gradient(135deg, #218838, #1e9e8a);
+            transform: translateY(-1px);
+        }
+        
+        .clear-history {
+            flex: 1;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-history:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+        
+        /* 右侧历史对话管理样式 */
+        .history-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+        
+        .history-header h3 {
+            color: #667eea;
+            font-size: 1.4rem;
+            margin: 0;
+        }
+        
+        .history-controls {
+            margin-bottom: 25px;
+        }
+        
+        .current-session-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .current-session-info h4 {
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        #session-info {
+            color: #6c757d;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+        
+        .history-stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .history-stats h4 {
+            color: #495057;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .stats-item span:first-child {
+            color: #6c757d;
+        }
+        
+        .stats-item span:last-child {
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .button-group button {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .button-group .new-chat-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .button-group .new-chat-btn:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .button-group .clear-history {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .button-group .clear-history:hover {
+            background: linear-gradient(135deg, #ee7df7 0%, #f4455c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI财务分析助手</h1>
+            <p>基于您的实时财务数据，提供专业的财务分析和建议</p>
+        </div>
+
+        <div class="ai-chat-container">
+            <!-- 左侧：问题推荐 -->
+            <div class="sidebar">
+                <div class="welcome-section">
+                    <h2>欢迎使用财务助手</h2>
+                    <p>我是您的专业财务顾问，拥有理财经验。我将基于您的实时财务数据，为您提供个性化的财务分析和建议。</p>
+                </div>
+
+                <div class="classic-questions">
+                    <h3>💡 来和我聊天吧</h3>
+                    <button class="question-btn" onclick="askQuestion('请分析我的财务健康状况')">📊 分析我的财务健康状况</button>
+                    <button class="question-btn" onclick="askQuestion('我的收支结构是否合理？')">💰 收支结构分析</button>
+                    <button class="question-btn" onclick="askQuestion('请给我一些预算优化建议')">📈 预算优化建议</button>
+                    <button class="question-btn" onclick="askQuestion('我的财务存在哪些风险？')">⚠️ 风险识别与预警</button>
+                    <button class="question-btn" onclick="askQuestion('如何提高我的储蓄率？')">🎯 储蓄提升策略</button>
+                    <button class="question-btn" onclick="askQuestion('请帮我检查一下我的账目是否平衡？')">⚖️ 账目平衡检查</button>
+                </div>
+            </div>
+
+            <!-- 中间：聊天区域 -->
+            <div class="chat-area">
+                <div class="messages-container" id="messages-container">
+                    <div class="message ai-message">
+                        <strong>AI财务顾问：</strong><br>
+                        您好！我是您的专业财务顾问。我已经获取了您的实时财务数据，可以为您提供以下分析服务：<br><br>
+                        • 📊 <strong>财务健康诊断</strong> - 分析净资产、资产负债率等关键指标<br>
+                        • 💰 <strong>收支结构分析</strong> - 识别主要收入来源和支出类别<br>
+                        • 📈 <strong>预算与规划建议</strong> - 提供预算优化和资产配置方案<br>
+                        • ⚠️ <strong>风险识别与预警</strong> - 发现潜在财务风险<br><br>
+                        您可以直接提问，或者点击左侧的经典问题开始分析！
+                        <div class="message-time">刚刚</div>
+                    </div>
+                </div>
+
+                <div class="input-area">
+                    <input type="text" class="message-input" id="message-input" placeholder="请输入您的财务问题..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()">发送</button>
+                </div>
+            </div>
+
+            <!-- 右侧：历史对话管理 -->
+            <div class="history-sidebar">
+                <div class="history-header">
+                    <h3>💬 对话管理</h3>
+                </div>
+                
+                <div class="current-session-info">
+                    <h4>🔄 当前会话</h4>
+                    <div id="session-info">新会话</div>
+                </div>
+                
+                <div class="history-stats">
+                    <h4>📊 会话统计</h4>
+                    <div class="stats-item">
+                        <span>消息总数：</span>
+                        <span id="current-messages">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span>会话时间：</span>
+                        <span id="session-time">-</span>
+                    </div>
+                </div>
+                
+                <div class="history-controls">
+                    <div class="button-group">
+                        <button class="new-chat-btn" onclick="startNewChat()">
+                            <span style="margin-right: 5px;">➕</span>新对话
+                        </button>
+                        <button class="clear-history" onclick="clearHistory()">
+                            <span style="margin-right: 5px;">🗑️</span>清空历史
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chat-history">
+                    <h3>📝 历史对话</h3>
+                    <div id="history-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://123.207.197.116:8081';
+        let userData = null;
+        let chatHistory = JSON.parse(localStorage.getItem('ai_chat_history') || '[]');
+        let currentSession = [];
+        let sessionId = Date.now().toString();
+        let userId = 'user_' + Date.now(); // 生成用户ID
+
+        // 页面加载时获取用户数据
+        window.addEventListener('load', async () => {
+            // 从localStorage加载历史对话
+            const savedSession = JSON.parse(localStorage.getItem('aiChatSession') || 'null');
+            if (savedSession) {
+                currentSession = savedSession.messages || [];
+                sessionId = savedSession.id || Date.now().toString();
+                userId = savedSession.userId || 'user_' + Date.now();
+                
+                // 显示历史对话
+                displayHistoryMessages();
+            } else {
+                currentSession = [];
+                sessionId = Date.now().toString();
+                userId = 'user_' + Date.now();
+            }
+            
+            await loadUserData();
+            loadChatHistory();
+            updateSessionInfo();
+            updateStats();
+        });
+        
+        // 开始新对话
+        function startNewChat() {
+            // 清空localStorage中的会话记录
+            localStorage.removeItem('aiChatSession');
+            
+            // 清空当前会话
+            currentSession = [];
+            sessionId = Date.now().toString();
+            userId = 'user_' + Date.now();
+            
+            // 清空聊天界面
+            document.getElementById('messages-container').innerHTML = `
+                <div class="message ai-message">
+                    <strong>AI财务顾问：</strong><br>
+                    您好！我是您的专业财务顾问。我已经获取了您的实时财务数据，可以为您提供以下分析服务：<br><br>
+                    • 📊 <strong>财务健康诊断</strong> - 分析净资产、资产负债率等关键指标<br>
+                    • 💰 <strong>收支结构分析</strong> - 识别主要收入来源和支出类别<br>
+                    • 📈 <strong>预算与规划建议</strong> - 提供预算优化和资产配置方案<br>
+                    • ⚠️ <strong>风险识别与预警</strong> - 发现潜在财务风险<br><br>
+                    您可以直接提问，或者点击左侧的经典问题开始分析！
+                    <div class="message-time">刚刚</div>
+                </div>
+            `;
+            
+            // 更新界面
+            updateSessionInfo();
+            updateStats();
+            
+            // 清空输入框
+            document.getElementById('message-input').value = '';
+        }
+        
+        // 更新历史记录下拉框
+        function updateHistorySelect() {
+            const select = document.getElementById('history-select');
+            select.innerHTML = '<option value="">选择历史对话...</option>';
+            
+            chatHistory.forEach((session, index) => {
+                const option = document.createElement('option');
+                option.value = session.id;
+                option.textContent = `${session.title} (${new Date(session.timestamp).toLocaleString()})`;
+                select.appendChild(option);
+            });
+            
+            // 更新统计信息
+            updateStats();
+        }
+        
+        function updateStats() {
+    // 安全地获取DOM元素
+    const currentMessagesElement = document.getElementById('current-messages');
+    const sessionTimeElement = document.getElementById('session-time');
+    
+    // 检查元素是否存在
+    if (!currentMessagesElement || !sessionTimeElement) {
+        console.warn('统计信息元素未找到，跳过更新');
+        return;
+    }
+    
+    // 计算总消息数：每个对话包含用户问题和AI响应，所以乘以2
+    const totalMessages = currentSession.length * 2;
+    
+    currentMessagesElement.textContent = totalMessages;
+    
+    // 更新会话时间
+    if (currentSession.length > 0) {
+        const firstMessage = currentSession[0];
+        const sessionTime = new Date(firstMessage.timestamp).toLocaleString();
+        sessionTimeElement.textContent = sessionTime;
+    } else {
+        sessionTimeElement.textContent = '-';
+    }
+}
+        
+        function displayHistoryMessages() {
+    const messagesContainer = document.getElementById('messages-container');
+    messagesContainer.innerHTML = '';
+    
+    currentSession.forEach(message => {
+        // 添加用户消息到聊天界面
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'message user-message';
+        userMessageDiv.innerHTML = `
+            <div class="message-content">
+                <div class="message-text">${message.question}</div>
+                <div class="message-time">${new Date(message.timestamp).toLocaleString()}</div>
+            </div>
+        `;
+        messagesContainer.appendChild(userMessageDiv);
+        
+        // 添加AI回复
+        const aiMessageDiv = document.createElement('div');
+        aiMessageDiv.className = 'message ai-message';
+        aiMessageDiv.innerHTML = `
+            <div class="message-content">
+                <div class="message-text">${message.response}</div>
+                <div class="message-time">${new Date(message.timestamp).toLocaleString()}</div>
+            </div>
+        `;
+        messagesContainer.appendChild(aiMessageDiv);
+    });
+    
+    // 滚动到底部
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function updateSessionInfo() {
+    const sessionInfo = document.getElementById('session-info');
+    
+    // 安全地检查元素是否存在
+    if (!sessionInfo) {
+        console.warn('会话信息元素未找到，跳过更新');
+        return;
+    }
+    
+    if (currentSession.length > 0) {
+        const firstMessage = currentSession[0];
+        const title = firstMessage.question || '新对话';
+        const time = new Date(firstMessage.timestamp).toLocaleString();
+        sessionInfo.innerHTML = `<strong>${title}</strong><br><small>创建时间: ${time}</small>`;
+    } else {
+        sessionInfo.textContent = '新会话';
+    }
+}
+        
+        // 加载选中的历史对话
+        function loadSelectedHistory(sessionId) {
+            if (!sessionId) return;
+            
+            const session = chatHistory.find(s => s.id === sessionId);
+            if (!session) return;
+            
+            // 设置当前会话
+            currentSession = session.messages;
+            sessionId = session.id;
+            
+            // 清空聊天界面
+            const messagesContainer = document.getElementById('messages-container');
+            messagesContainer.innerHTML = '';
+            
+            // 重新显示历史消息
+            currentSession.forEach(msg => {
+                addMessage(msg.response, 'ai');
+            });
+            
+            // 滚动到底部
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // 获取用户数据
+        async function loadUserData() {
+            try {
+                // 从localStorage获取currentUser对象并解析
+                const currentUserStr = localStorage.getItem('currentUser');
+                let userId = '1'; // 默认值
+                
+                if (currentUserStr) {
+                    const currentUser = JSON.parse(currentUserStr);
+                    userId = currentUser.id || '1';
+                }
+                
+                // 获取概览数据
+                const summaryResponse = await fetch(`${API_BASE}/api/dashboard/summary?userId=${userId}`);
+                const summaryData = await summaryResponse.json();
+                
+                // 获取交易统计数据
+                const statsResponse = await fetch(`${API_BASE}/api/transaction-stats?userId=${userId}`);
+                const statsData = await statsResponse.json();
+                
+                // 合并数据
+                userData = {
+                    summary: summaryData,
+                    stats: statsData
+                };
+                
+                console.log('用户数据加载成功，用户ID:', userId, '数据:', userData);
+            } catch (error) {
+                console.error('获取用户数据失败:', error);
+                userData = { summary: {}, stats: {} };
+            }
+        }
+
+        // 处理AI响应内容，去除markdown格式并美化显示
+        function processAIResponse(content) {
+            if (!content) return '';
+            
+            let processedContent = content;
+            
+            // 去除常见的markdown格式字符
+            processedContent = processedContent
+                .replace(/### \*\*/g, '')  // 去除### **
+                .replace(/\*\*###/g, '')  // 去除**###
+                .replace(/\*\*/g, '')      // 去除**
+                .replace(/###/g, '')       // 去除###
+                .replace(/##/g, '')        // 去除##
+                .replace(/#/g, '')         // 去除#
+                .replace(/\*/g, '')        // 去除*
+                .replace(/`/g, '')         // 去除`
+                .replace(/\n{3,}/g, '\n\n'); // 多个换行合并为两个
+            
+            // 美化表格显示
+            processedContent = processedContent.replace(/\|(.+?)\|/g, function(match) {
+                // 如果是表格行，添加表格样式
+                if (match.includes('---') || match.includes('|--')) {
+                    return '<div class="table-separator"></div>';
+                }
+                return '<div class="table-row">' + match.replace(/\|/g, '<span class="table-cell">') + '</span></div>';
+            });
+            
+            // 处理列表
+            processedContent = processedContent.replace(/^(-|\*|\+)\s+(.+?)(?=\n|$)/gm, '<li>$2</li>');
+            processedContent = processedContent.replace(/(<li>.*<\/li>)+/g, '<ul class="ai-list">$&</ul>');
+            
+            // 处理数字列表
+            processedContent = processedContent.replace(/^(\d+)\.\s+(.+?)(?=\n|$)/gm, '<li>$2</li>');
+            processedContent = processedContent.replace(/(<li>.*<\/li>)+/g, '<ol class="ai-list">$&</ol>');
+            
+            // 保留段落格式
+            processedContent = processedContent.replace(/\n/g, '<br>');
+            
+            return processedContent;
+        }
+        
+        // 发送消息到AI
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            if (!userData) {
+                alert('用户数据尚未加载完成，请稍后重试');
+                return;
+            }
+
+            // 添加用户消息到界面
+            addMessage(message, 'user');
+            input.value = '';
+
+            // 动态更新消息数（用户问题+1）
+            updateStats();
+
+            // 安全地获取发送按钮
+            const sendBtn = document.getElementById('send-btn');
+            if (!sendBtn) {
+                console.error('发送按钮未找到');
+                return;
+            }
+
+            // 禁用发送按钮
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<div class="loading"></div>';
+
+            try {
+                // 准备数据
+                const dataString = JSON.stringify(userData);
+
+                // 调用AI接口
+                const response = await fetch(`${API_BASE}/api/ai/chat?data=${encodeURIComponent(dataString)}&query=${encodeURIComponent(message)}`);
+                const aiResponse = await response.text();
+
+                // 处理AI回复内容
+                const processedResponse = processAIResponse(aiResponse);
+
+                // 添加AI回复到界面
+                addMessage(processedResponse, 'ai');
+
+                // 动态更新消息数（AI响应+1）
+                updateStats();
+
+                // 保存到当前会话
+                const messageData = {
+                    question: message,
+                    response: aiResponse,
+                    timestamp: new Date().toISOString()
+                };
+                currentSession.push(messageData);
+
+                // 保存完整会话到localStorage
+                const sessionData = {
+                    id: sessionId,
+                    userId: userId,
+                    messages: [...currentSession],
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('aiChatSession', JSON.stringify(sessionData));
+
+            } catch (error) {
+                console.error('AI对话失败:', error);
+                addMessage('抱歉，AI服务暂时不可用，请稍后重试。', 'ai');
+            } finally {
+                // 恢复发送按钮
+                sendBtn.disabled = false;
+                sendBtn.textContent = '发送';
+            }
+        }
+
+        // 点击经典问题
+        function askQuestion(question) {
+            document.getElementById('message-input').value = question;
+            sendMessage();
+        }
+
+        // 添加消息到界面
+        function addMessage(content, type) {
+            const container = document.getElementById('messages-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            
+            const time = new Date().toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <strong>您：</strong><br>${content}
+                    <div class="message-time">${time}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <strong>AI财务顾问：</strong><br>${content.replace(/\n/g, '<br>')}
+                    <div class="message-time">${time}</div>
+                `;
+            }
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 保存到历史记录
+        function saveToHistory(question, answer) {
+            const historyItem = {
+                id: Date.now(),
+                question: question,
+                answer: answer,
+                timestamp: new Date().toISOString()
+            };
+            
+            chatHistory.unshift(historyItem);
+            // 只保留最近20条记录
+            if (chatHistory.length > 20) {
+                chatHistory = chatHistory.slice(0, 20);
+            }
+            
+            localStorage.setItem('ai_chat_history', JSON.stringify(chatHistory));
+            loadChatHistory();
+        }
+
+        // 加载聊天历史
+        function loadChatHistory() {
+            const historyList = document.getElementById('history-list');
+            
+            // 安全地检查元素是否存在
+            if (!historyList) {
+                console.warn('历史列表元素未找到，跳过加载历史记录');
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            
+            chatHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <strong>${item.question}</strong>
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                        ${new Date(item.timestamp).toLocaleDateString('zh-CN')}
+                    </div>
+                `;
+                
+                historyItem.onclick = () => {
+                    // 清空当前对话
+                    const messagesContainer = document.getElementById('messages-container');
+                    if (messagesContainer) {
+                        messagesContainer.innerHTML = '';
+                    }
+                    // 添加历史对话
+                    addMessage(item.question, 'user');
+                    addMessage(item.answer, 'ai');
+                };
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // 清空历史记录
+        function clearHistory() {
+            if (confirm('确定要清空所有聊天历史吗？')) {
+                chatHistory = [];
+                localStorage.setItem('ai_chat_history', JSON.stringify(chatHistory));
+                loadChatHistory();
+            }
+        }
+
+        // 回车发送消息
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 初始化
+        loadChatHistory();
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.FinancialRecordMapper">
+
+    <select id="getAllFinancialRecords" resultType="java.util.HashMap">
+        SELECT * FROM (
+                          (SELECT
+                               id,
+                               'ASSET' as recordType,
+                               asset_id as accountId,
+                               transaction_date as recordDate,
+                               description,
+                               debit_amount as debitValue,
+                               credit_amount as creditValue,
+                               (debit_amount - credit_amount) as netValue,
+                               CASE WHEN debit_amount > 0 THEN true ELSE false END as isDebitEntry
+                           FROM asset_transactions
+                           WHERE user_id = #{userId})
+
+                          UNION ALL
+
+                          (SELECT
+                               id,
+                               'LIABILITY' as recordType,
+                               liability_id as accountId,
+                               transaction_date,
+                               description,
+                               debit_amount,
+                               credit_amount,
+                               (credit_amount - debit_amount) as netValue,
+                               CASE WHEN credit_amount > 0 THEN false ELSE true END as isDebitEntry
+                           FROM liability_transactions
+                           WHERE user_id = #{userId})
+
+                          UNION ALL
+
+                          (SELECT
+                               id,
+                               'EQUITY' as recordType,
+                               equity_id as accountId,
+                               transaction_date,
+                               description,
+                               debit_amount,
+                               credit_amount,
+                               (credit_amount - debit_amount) as netValue,
+                               CASE WHEN credit_amount > 0 THEN false ELSE true END as isDebitEntry
+                           FROM equity_transactions
+                           WHERE user_id = #{userId})
+
+                          UNION ALL
+
+                          (SELECT
+                               id,
+                               'INCOME' as recordType,
+                               income_id as accountId,
+                               transaction_date,
+                               description,
+                               debit_amount,
+                               credit_amount,
+                               (credit_amount - debit_amount) as netValue,
+                               CASE WHEN credit_amount > 0 THEN false ELSE true END as isDebitEntry
+                           FROM income_transactions
+                           WHERE user_id = #{userId})
+
+                          UNION ALL
+
+                          (SELECT
+                               id,
+                               'EXPENSE' as recordType,
+                               expense_id as accountId,
+                               transaction_date,
+                               description,
+                               debit_amount,
+                               credit_amount,
+                               (debit_amount - credit_amount) as netValue,
+                               CASE WHEN debit_amount > 0 THEN true ELSE false END as isDebitEntry
+                           FROM expense_transactions
+                           WHERE user_id = #{userId})
+                      ) combined_results
+        ORDER BY recordDate DESC, id DESC
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAllFinancialRecords" resultType="int">
+        SELECT COUNT(*) FROM (
+                                 SELECT id FROM asset_transactions WHERE user_id = #{userId}
+                                 UNION ALL SELECT id FROM liability_transactions WHERE user_id = #{userId}
+                                 UNION ALL SELECT id FROM equity_transactions WHERE user_id = #{userId}
+                                 UNION ALL SELECT id FROM income_transactions WHERE user_id = #{userId}
+                                 UNION ALL SELECT id FROM expense_transactions WHERE user_id = #{userId}
+                             ) t
+    </select>
+
+    <select id="getFinancialRecordById" resultType="java.util.HashMap">
+        SELECT * FROM ${recordType}_transactions WHERE id = #{id}
+    </select>
+
+    <select id="findPairedFinancialRecord" resultType="java.util.HashMap">
+        SELECT * FROM (
+        SELECT 'ASSET' as recordType, id, asset_id as accountId FROM asset_transactions
+        WHERE user_id = #{userId} AND transaction_date = #{recordDate}
+        UNION ALL
+        ) t
+        WHERE (debit_amount = #{creditValue} OR credit_amount = #{debitValue})
+        AND recordType != #{excludeRecordType}
+        LIMIT 1
+    </select>
+
+    <select id="getAccountInfo" resultType="java.util.HashMap">
+        SELECT * FROM ${accountType} WHERE id = #{accountId}
+    </select>
+
+    <select id="getFinancialStatsByCategory" resultType="java.util.HashMap">
+        SELECT accountType, category, SUM(amount) as total
+        FROM (
+        SELECT 'EXPENSE' as accountType, level2 as category,
+        (debit_amount - credit_amount) as amount
+        FROM expense_transactions
+        WHERE user_id = #{userId}
+        UNION ALL
+        ) t GROUP BY accountType, category
+    </select>
+
+    <select id="getFinancialStatsByPeriod" resultType="java.util.HashMap">
+        SELECT DATE_FORMAT(recordDate, #{periodFormat}) as period,
+        SUM(income) as income, SUM(expense) as expense
+        FROM (
+        SELECT transaction_date as recordDate,
+        CASE WHEN recordType = 'INCOME' THEN amount ELSE 0 END as income,
+        CASE WHEN recordType = 'EXPENSE' THEN amount ELSE 0 END as expense
+        FROM (
+        SELECT 'EXPENSE' as recordType, transaction_date,
+        (debit_amount - credit_amount) as amount
+        FROM expense_transactions WHERE user_id = #{userId}
+        UNION ALL
+        ) t
+        ) t GROUP BY period
+    </select>
+</mapper>

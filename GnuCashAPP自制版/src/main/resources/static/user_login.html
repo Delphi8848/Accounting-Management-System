@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GNU Cash 财务记账软件 - 用户登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #003366 0%, #004d80 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 450px;
+            padding: 50px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 51, 102, 0.05) 0%, rgba(255,255,255,0) 70%);
+            z-index: 0;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-header h1 {
+            color: #003366;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .login-header p {
+            color: #4a6b8a;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .login-form {
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #003366;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #fafbfc;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #003366;
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+            background-color: white;
+        }
+
+        .login-toggle {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #003366;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .toggle-btn:hover {
+            color: #004d80;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #003366 0%, #004d80 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.3);
+            background: linear-gradient(135deg, #004d80 0%, #0066cc 100%);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            display: none;
+            padding: 10px;
+            background-color: #ffebee;
+            border-radius: 6px;
+            border-left: 4px solid #d32f2f;
+        }
+
+        .system-name {
+            text-align: center;
+            margin-top: 30px;
+            color: #4a6b8a;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .finance-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #003366 0%, #004d80 100%);
+            border-radius: 50%;
+            margin: 0 auto 25px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            box-shadow: 0 10px 30px rgba(0, 51, 102, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="finance-icon">💰</div>
+            <h1>账户登录</h1>
+            <p>GNU Cash 专业财务记账软件</p>
+        </div>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required placeholder="请输入用户名">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required placeholder="请输入密码">
+            </div>
+            
+     
+            
+            <button type="submit" class="login-btn">登录系统</button>
+            
+            <div class="login-toggle" style="margin-top: 15px;">
+                <button type="button" class="toggle-btn" onclick="window.location.href='rigister.html'">创建账户</button>
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                用户名或密码错误，请重试。
+            </div>
+        </form>
+        
+        <div class="system-name">
+            GNU CASH 财务记账软件
+        </div>
+    </div>
+
+    <script>
+        // 只支持用户名登录方式
+        
+        // 表单提交处理
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showError('请输入完整的登录信息');
+                return;
+            }
+            
+            // 调用登录函数
+            loginUser(username, password);
+        });
+        
+        // 登录函数
+        async function loginUser(username, password) {
+            try {
+                // 获取所有用户信息
+                const response = await fetch('http://123.207.197.116:8081/api/users');
+                
+                if (!response.ok) {
+                    throw new Error('网络请求失败');
+                }
+                
+                const users = await response.json();
+                
+                // 根据用户名和密码查找用户
+                let loggedInUser = users.find(user => 
+                    user.username === username && user.password === password
+                );
+                
+                if (loggedInUser) {
+                    // 验证用户角色和状态
+                    if (loggedInUser.userRole !== 'user') {
+                        showError('用户角色不正确，登录失败。');
+                        return;
+                    }
+                    
+                    if (loggedInUser.status !== '1') {
+                        showError('用户账户已被禁用，请联系管理员。');
+                        return;
+                    }
+                    
+                    // 登录成功，保存完整的用户信息到localStorage
+                    const userInfo = {
+                        id: loggedInUser.id,
+                        username: loggedInUser.username,
+                        password: loggedInUser.password,
+                        created: loggedInUser.created,
+                        avatar: loggedInUser.avatar,
+                        phone: loggedInUser.phone,
+                        userRole: loggedInUser.userRole,
+                        email: loggedInUser.email,
+                        gender: loggedInUser.gender,
+                        timezone: loggedInUser.timezone,
+                        status: loggedInUser.status
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userInfo));
+                    console.log(JSON.stringify(userInfo))
+                    window.location.href = 'user_main.html';
+                } else {
+                    // 登录失败
+                    showError('用户名或密码错误，请重试。');
+                }
+            } catch (error) {
+                console.error('登录错误:', error);
+                showError('登录过程中发生错误，请稍后重试。');
+            }
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

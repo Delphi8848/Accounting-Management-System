@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GNU Cash 财务记账软件 - 后台管理登录</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #003366 0%, #004d80 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #003366;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .login-header p {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #003366;
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 42px;
+            color: #a0aec0;
+            transition: color 0.3s ease;
+        }
+
+        .form-group input:focus + i {
+            color: #003366;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 42px;
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #003366;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .checkbox-container input {
+            display: none;
+        }
+
+        .checkmark {
+            position: relative;
+            height: 18px;
+            width: 18px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            margin-right: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #cbd5e0;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #003366;
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+        }
+
+        .login-btn {
+            padding: 14px;
+            background: linear-gradient(135deg, #003366 0%, #004d80 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 51, 102, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* 加载动画 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* 错误提示样式 */
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-group.has-error input {
+            border-color: #e53e3e;
+        }
+
+        .form-group.has-error i {
+            color: #e53e3e;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>GNU Cash 财务记账软件</h1>
+            <p>后台管理系统登录</p>
+        </div>
+        
+        <div class="login-form">
+            <div class="form-group" id="usernameGroup">
+                <label for="username">用户名</label>
+                <input type="text" id="username" value="admin" placeholder="请输入用户名">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            
+            <div class="form-group" id="passwordGroup">
+                <label for="password">密码</label>
+                <input type="password" id="password" value="123456" placeholder="请输入密码">
+                <i class="fas fa-lock"></i>
+                <button class="toggle-password" onclick="togglePasswordVisibility()">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            
+            <div class="form-options">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="rememberMe" checked>
+                    <span class="checkmark"></span>
+                    记住我
+                </label>
+            </div>
+            
+            <button class="login-btn" onclick="login()">管理员登录</button>
+        </div>
+    </div>
+    
+    <script>
+        // 切换密码可见性
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.querySelector('.toggle-password i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            }
+        }
+        
+        // 显示错误信息
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const formGroup = field.parentElement;
+            
+            // 移除已有的错误信息
+            const existingError = formGroup.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // 添加错误样式
+            formGroup.classList.add('has-error');
+            
+            // 创建新的错误信息
+            const errorElement = document.createElement('div');
+            errorElement.classList.add('error-message');
+            errorElement.textContent = message;
+            formGroup.appendChild(errorElement);
+            
+            // 显示错误信息
+            errorElement.style.display = 'block';
+        }
+        
+        // 清除错误信息
+        function clearErrors() {
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach(group => {
+                group.classList.remove('has-error');
+                const errorElement = group.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.remove();
+                }
+            });
+        }
+        
+        // 登录函数
+        function login() {
+            clearErrors();
+            
+            // 获取用户输入
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // 验证输入
+            if (!username) {
+                showError('username', '请输入用户名');
+                return;
+            }
+            
+            if (!password) {
+                showError('password', '请输入密码');
+                return;
+            }
+            
+            // 管理员登录验证 (默认账号密码)
+            if (username === 'admin' && password === '123456') {
+                // 创建管理员用户对象
+                const adminUser = {
+                    userId: 0,
+                    username: 'admin',
+                    email: 'admin@example.com',
+                    role: 'admin',
+                    nickname: '系统管理员',
+                    bio: '系统超级管理员账户'
+                };
+                
+                // 保存登录状态
+                if (rememberMe) {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('loggedInUser', JSON.stringify(adminUser));
+                    localStorage.setItem('isAdmin', 'true');
+                } else {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(adminUser));
+                    sessionStorage.setItem('isAdmin', 'true');
+                }
+                
+                // 登录成功，跳转到管理员主页
+                window.location.href = 'admin_dashboard.html';
+            } else {
+                // 登录失败
+                alert('管理员账号或密码错误');
+            }
+        }
+        
+        // 页面加载时检查登录状态
+        window.addEventListener('load', function() {
+         });
+    </script>
+</body>
+</html>

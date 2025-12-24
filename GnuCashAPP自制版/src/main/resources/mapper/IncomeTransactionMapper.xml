@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.IncomeTransactionMapper">
+
+    <select id="findByTypeAndDateRange" resultType="com.gnu.cash.pojo.IncomeTransaction">
+        SELECT * FROM income_transactions
+        WHERE user_id = #{userId}
+        <if test="incomeId != null">
+            AND income_id = #{incomeId}
+        </if>
+        AND transaction_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY transaction_date DESC
+    </select>
+
+    <select id="sumIncomeByMonth" resultType="java.math.BigDecimal">
+        SELECT SUM(credit_amount)
+        FROM income_transactions
+        WHERE user_id = #{userId}
+          AND DATE_FORMAT(transaction_date, '%Y-%m') = #{yearMonth}
+    </select>
+
+</mapper>

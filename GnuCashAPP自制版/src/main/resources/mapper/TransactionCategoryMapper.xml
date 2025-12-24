@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.TransactionCategoryMapper">
+
+    <!-- 获取所有交易分类（合并五张科目表） -->
+    <select id="getAllCategories" resultType="java.util.HashMap">
+        SELECT
+            'ASSET' as type,
+            id,
+            level1,
+            level2,
+            level3,
+            description,
+        FROM assets
+
+        UNION ALL
+
+        SELECT
+            'LIABILITY' as type,
+            id,
+            level1,
+            level2,
+            level3,
+            description,
+        FROM liabilities
+
+        UNION ALL
+
+        SELECT
+            'EQUITY' as type,
+            id,
+            level1,
+            level2,
+            level3,
+            description,
+        FROM equity
+
+        UNION ALL
+
+        SELECT
+            'INCOME' as type,
+            id,
+            level1,
+            level2,
+            level3,
+            description,
+        FROM income
+
+        UNION ALL
+
+        SELECT
+            'EXPENSE' as type,
+            id,
+            level1,
+            level2,
+            level3,
+            description,
+        FROM expenses
+
+        ORDER BY type, level1, level2, level3
+    </select>
+
+    <!-- 获取特定类型交易分类 -->
+    <select id="getCategoriesByType" resultType="java.util.HashMap">
+        SELECT
+            id,
+            level1,
+            level2,
+            level3,
+            description,
+        FROM ${type}
+        1
+        ORDER BY level1, level2, level3
+    </select>
+
+    <select id="getCategoryStatistics" resultType="java.util.HashMap">
+        SELECT
+        t.type,
+        t.level1,
+        t.level2,
+        t.level3,
+        COUNT(tr.id) as transactionCount,
+        SUM(CASE WHEN t.type = 'EXPENSE' THEN tr.debit_amount - tr.credit_amount
+        WHEN t.type = 'INCOME' THEN tr.credit_amount - tr.debit_amount
+        WHEN t.type = 'ASSET' THEN tr.debit_amount - tr.credit_amount
+        ELSE 0 END) as totalAmount
+        FROM (
+        SELECT 'EXPENSE' as type, id, level1, level2, level3 FROM expenses 1
+        UNION ALL SELECT 'INCOME' as type, id, level1, level2, level3 FROM income 1
+        UNION ALL SELECT 'ASSET' as type, id, level1, level2, level3 FROM assets 1
+        UNION ALL SELECT 'LIABILITY' as type, id, level1, level2, level3 FROM liabilities 1
+        UNION ALL SELECT 'EQUITY' as type, id, level1, level2, level3 FROM equity 1
+        ) t
+        LEFT JOIN ${type}_transactions tr ON t.id = tr.${type}_id
+        <if test="startDate != null">
+            AND tr.transaction_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND tr.transaction_date &lt;= #{endDate}
+        </if>
+        GROUP BY t.type, t.level1, t.level2, t.level3
+        ORDER BY t.type, totalAmount DESC
+    </select>
+
+    <!-- 检查分类是否存在 -->
+    <select id="checkCategoryExists" resultType="int">
+        SELECT COUNT(*) FROM ${type}
+        AND level1 = #{level1}
+        AND level2 = #{level2}
+        <if test="level3 != null">
+            AND level3 = #{level3}
+        </if>
+        <if test="level3 == null">
+            AND level3 IS NULL
+        </if>
+    </select>
+</mapper>

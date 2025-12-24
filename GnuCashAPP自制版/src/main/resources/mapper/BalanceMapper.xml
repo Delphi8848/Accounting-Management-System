@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnu.cash.mapper.BalanceMapper">
+
+    <!-- 资产总额 -->
+    <select id="getTotalAssets" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(balance), 0)
+        FROM (
+                 SELECT SUM(debit_amount - credit_amount) as balance
+                 FROM asset_transactions
+                 WHERE user_id = #{userId}
+                 GROUP BY asset_id
+             ) t
+    </select>
+
+    <!-- 负债总额 -->
+    <select id="getTotalLiabilities" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(balance), 0)
+        FROM (
+                 SELECT SUM(credit_amount - debit_amount) as balance
+                 FROM liability_transactions
+                 WHERE user_id = #{userId}
+                 GROUP BY liability_id
+             ) t
+    </select>
+
+    <!-- 权益总额 -->
+    <select id="getTotalEquity" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(balance), 0)
+        FROM (
+                 SELECT SUM(credit_amount - debit_amount) as balance
+                 FROM equity_transactions
+                 WHERE user_id = #{userId}
+                 GROUP BY equity_id
+             ) t
+    </select>
+
+    <!-- 资产明细 -->
+    <select id="getAssetDetails" resultType="java.util.HashMap">
+        SELECT
+            a.id,
+            a.level1 as category,
+            a.level2 as subCategory,
+            a.level3 as detail,
+            a.description,
+            SUM(at.debit_amount - at.credit_amount) as balance
+        FROM assets a
+                 JOIN asset_transactions at ON a.id = at.asset_id
+        WHERE at.user_id = #{userId}
+        GROUP BY a.id, a.level1, a.level2, a.level3, a.description
+        ORDER BY balance DESC
+    </select>
+
+    <!-- 负债明细 -->
+    <select id="getLiabilityDetails" resultType="java.util.HashMap">
+        SELECT
+            l.id,
+            l.level1 as category,
+            l.level2 as subCategory,
+            l.level3 as detail,
+            l.description,
+            SUM(lt.credit_amount - lt.debit_amount) as balance
+        FROM liabilities l
+                 JOIN liability_transactions lt ON l.id = lt.liability_id
+        WHERE lt.user_id = #{userId}
+        GROUP BY l.id, l.level1, l.level2, l.level3, l.description
+        ORDER BY balance DESC
+    </select>
+
+    <!-- 最近交易记录 -->
+    <select id="getRecentTransactions" resultType="java.util.HashMap">
+        (SELECT
+             'ASSET' as type,
+             at.id,
+             a.level1 as category,
+             a.level2 as subCategory,
+             at.transaction_date as date,
+            at.description,
+            at.debit_amount as debit,
+            at.credit_amount as credit,
+            (at.debit_amount - at.credit_amount) as netAmount
+         FROM asset_transactions at
+             JOIN assets a ON at.asset_id = a.id
+         WHERE at.user_id = #{userId})
+
+        UNION ALL
+
+        (SELECT
+             'LIABILITY' as type,
+             lt.id,
+             l.level1 as category,
+             l.level2 as subCategory,
+             lt.transaction_date as date,
+            lt.description,
+            lt.debit_amount as debit,
+            lt.credit_amount as credit,
+            (lt.credit_amount - lt.debit_amount) as netAmount
+         FROM liability_transactions lt
+             JOIN liabilities l ON lt.liability_id = l.id
+         WHERE lt.user_id = #{userId})
+
+        UNION ALL
+
+        (SELECT
+             'EXPENSE' as type,
+             et.id,
+             e.level1 as category,
+             e.level2 as subCategory,
+             et.transaction_date as date,
+            et.description,
+            et.debit_amount as debit,
+            et.credit_amount as credit,
+            (et.debit_amount - et.credit_amount) as netAmount
+         FROM expense_transactions et
+             JOIN expenses e ON et.expense_id = e.id
+         WHERE et.user_id = #{userId})
+
+        ORDER BY date DESC
+            LIMIT #{limit}
+    </select>
+</mapper>
